@@ -1,0 +1,10 @@
+# Set up flags for debug and for production.
+CCFLAGS = '-O2' if ARGUMENTS.get('production', False) else '-g'
+env = Environment(parse_flags=CCFLAGS)
+
+stb_image = ['stb_image.c']
+stb_image_resize = ['stb_image_resize.c']
+libraries = stb_image + stb_image_resize
+
+env.Program(target='imgcat',
+            source=['imgcat.c'] + libraries)
