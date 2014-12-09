@@ -14,7 +14,7 @@ typedef enum rgb_channels {
     RED, GREEN, BLUE,
     /* Sentinel/length value: */
     NUM_CHANNELS
-} Channels;
+} Channel;
 
 typedef union {
     uint8_t     axis[3];
@@ -28,7 +28,7 @@ typedef struct kd_node RGB_Node;
 struct kd_node {
     const char  *name;
     RGB_Tuple   colour;
-    int         axis;
+    Channel     axis;
     RGB_Node    *left, *right;
 };
 

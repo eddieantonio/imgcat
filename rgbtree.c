@@ -11,21 +11,21 @@
 
 /*#include "generated_rgb_tree.h"*/
 static RGB_Node sample_tree[] = {
-    { .name = "Seafoam",    .colour = {{63, 223, 191}}, .axis = 0,
+    { .name = "Seafoam",    .colour = {{63, 223, 191}},     .axis = RED,
         .left = &sample_tree[1], .right = &sample_tree[4] },
 
-    { .name = "DodgerBlue", .colour = {{31, 127, 255}}, .axis = 1,
+    { .name = "DodgerBlue", .colour = {{31, 127, 255}},     .axis = GREEN,
         .left = &sample_tree[2], .right = &sample_tree[3] },
-    { .name = "Black",      .colour = {{0, 0, 0}},      .axis = 2,
+    { .name = "Black",      .colour = {{0, 0, 0}},          .axis = BLUE,
         .left = 0, .right = 0 },
-    { .name = "Off-Green",  .colour = {{0, 223, 0 }},   .axis = 2,
+    { .name = "Off-Green",  .colour = {{0, 223, 0 }},       .axis = BLUE,
         .left = 0, .right = 0 },
 
-    { .name = "Pink",       .colour = {{255, 191, 223}},.axis = 1,
+    { .name = "Pink",       .colour = {{255, 191, 223}},    .axis = GREEN,
         .left = &sample_tree[5], .right = &sample_tree[6] },
-    { .name = "Gold",       .colour = {{255, 223, 0}},  .axis = 2,
+    { .name = "Gold",       .colour = {{255, 223, 0}},      .axis = BLUE,
         .left = 0, .right = 0 },
-    { .name = "Crimson",    .colour = {{223, 0, 0}},    .axis = 2,
+    { .name = "Crimson",    .colour = {{223, 0, 0}},        .axis = BLUE,
         .left = 0, .right = 0 },
 
 };
