@@ -35,7 +35,7 @@ struct kd_node {
 RGB_Node *rgb_construct(RGB_Node *nodes, int count, int depth);
 RGB_Node *rgb_nearest( RGB_Node *tree, RGB_Tuple *target, long *dist);
 void rgb_foreach_df(RGB_Node *tree, void (*func)(RGB_Node*, int));
-unsigned long rgb_colour_distance(RGB_Tuple *p, RGB_Tuple *q);
+int rgb_colour_distance(RGB_Tuple *p, RGB_Tuple *q);
 RGB_Node *rgb_closest_colour(uint8_t red, uint8_t green, uint8_t blue);
 void rgb_print_node(RGB_Node *node, int depth);
 

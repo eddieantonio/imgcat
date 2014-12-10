@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+
 #include "rgbtree.h"
 
 /*#include "generated_rgb_tree.h"*/
@@ -211,10 +213,12 @@ void rgb_print_node(RGB_Node *node, int depth) {
 
 }
 
+_Static_assert(195075 <= INT_MAX, "Cannot store max distance in UINT");
+
 /* Utility functions. */
-unsigned long rgb_colour_distance(RGB_Tuple *p, RGB_Tuple *q) {
+int rgb_colour_distance(RGB_Tuple *p, RGB_Tuple *q) {
     int i;
-    unsigned long accumulator, squared_distance = 0;
+    int accumulator, squared_distance = 0;
 
     for (i = 0; i < NUM_CHANNELS; i++) {
         accumulator = p->axis[i]- q->axis[i];
