@@ -2,6 +2,8 @@
 
 It's like `cat` but for images.
 
+![$imgcat cat.jpg](http://eddieantonio.ca/imgcat/assets/50711a8ee4.png)
+
 # Build
 
 You must have [scons](http://www.scons.org/).
