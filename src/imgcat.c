@@ -25,6 +25,8 @@ static struct {
     bool isatty;
 } terminal_info;
 
+
+
 void parse_args(int argc, char **argv);
 void print_image(const char *filename, int required_width, Format format);
 void determine_terminal_capabilities();
@@ -41,6 +43,8 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Not implemented!\n");
     return -1;
 }
+
+
 
 void print_image_8(unsigned char *buffer);
 void print_image_256(unsigned char *buffer);

@@ -1,9 +1,13 @@
 # Delegate all to scons.
-all:
+all: imgcat
+
+build/imgcat:
 	scons
+imgcat: build/imgcat
+	ln -s $< $@
 production:
 	scons production=true
-test: all
+test: imgcat
 	./imgcat 
 clean:
 	scons -c

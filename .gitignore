@@ -1,3 +1,4 @@
 *.o
 imgcat
 .sconsign.dblite
+build/
