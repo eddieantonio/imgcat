@@ -1,13 +1,17 @@
-# Delegate all to scons.
-all: imgcat
-build/imgcat:
+SRC = src/
+BIN = build/imgcat
+
+# Delegate all of these to scons.
+all: $(BIN)
+$(BIN): $(SRC)
 	scons
-imgcat: build/imgcat
-	ln -sf $< $@
-production:
+install: $(SRC)
+	scons install
+production: $(SRC)
 	scons production=true
-test: imgcat
-	./imgcat 
+test: $(BIN)
+	$(BIN) test/small_xterm_256color_chart.png
 clean:
 	scons -c
-.PHONY: all build/imgcat clean production test
+	$(RM) -r build/
+.PHONY: all clean install production test

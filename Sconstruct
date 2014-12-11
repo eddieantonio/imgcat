@@ -1,2 +1,10 @@
-SConscript('src/Sconscript',
-           variant_dir='build')
+import os
+
+PREFIX = '/usr/local'
+BINDIR = os.path.join(PREFIX, 'bin')
+
+env = Environment()
+program = SConscript('src/Sconscript', variant_dir='build')
+
+env.Install(BINDIR, program)
+env.Alias('install', BINDIR)
