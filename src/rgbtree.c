@@ -11,26 +11,8 @@
 
 #include "rgbtree.h"
 
-/*#include "generated_rgb_tree.h"*/
-static RGB_Node sample_tree[] = {
-    { .name = "Seafoam",    .colour = {{63, 223, 191}},     .axis = RED,
-        .left = &sample_tree[1], .right = &sample_tree[4] },
-
-    { .name = "DodgerBlue", .colour = {{31, 127, 255}},     .axis = GREEN,
-        .left = &sample_tree[2], .right = &sample_tree[3] },
-    { .name = "Black",      .colour = {{0, 0, 0}},          .axis = BLUE,
-        .left = 0, .right = 0 },
-    { .name = "Off-Green",  .colour = {{0, 223, 0 }},       .axis = BLUE,
-        .left = 0, .right = 0 },
-
-    { .name = "Pink",       .colour = {{255, 191, 223}},    .axis = GREEN,
-        .left = &sample_tree[5], .right = &sample_tree[6] },
-    { .name = "Gold",       .colour = {{255, 223, 0}},      .axis = BLUE,
-        .left = 0, .right = 0 },
-    { .name = "Crimson",    .colour = {{223, 0, 0}},        .axis = BLUE,
-        .left = 0, .right = 0 },
-
-};
+#include "tree_256_color.h"
+static const RGB_Node *sample_tree = TREE_256_COLOR;
 
 
 /*************
@@ -40,11 +22,11 @@ static RGB_Node sample_tree[] = {
 
 /* Nearest neighbour functions. */
 typedef struct result {
-    long        distance_squared;
-    RGB_Node    *node;
+    long            distance_squared;
+    const RGB_Node  *node;
 } RGB_Result;
 
-static void find_nearest(RGB_Node *tree, RGB_Tuple *target,
+static void find_nearest(const RGB_Node *tree, RGB_Tuple *target,
         RGB_Result *current_best)
 {
 
@@ -80,7 +62,8 @@ static void find_nearest(RGB_Node *tree, RGB_Tuple *target,
 
 }
 
-RGB_Node *rgb_nearest(RGB_Node *root, RGB_Tuple *target, long *distance_loc) {
+const RGB_Node *rgb_nearest(const RGB_Node *root, RGB_Tuple *target,
+        long *distance_loc) {
 
     RGB_Result result;
 
@@ -98,9 +81,9 @@ RGB_Node *rgb_nearest(RGB_Node *root, RGB_Tuple *target, long *distance_loc) {
     return result.node;
 }
 
-RGB_Node *rgb_closest_colour(uint8_t red, uint8_t green, uint8_t blue) {
+const RGB_Node *rgb_closest_colour(uint8_t red, uint8_t green, uint8_t blue) {
 
-    RGB_Node *root, *closest;
+    const RGB_Node *root, *closest;
     RGB_Tuple target_colour;
     long distance = -1;
 
@@ -133,7 +116,8 @@ static ComparisonFunc comparisons[] = {
 
 #define CHANNELS (sizeof(comparisons)/sizeof(ComparisonFunc))
 
-RGB_Node *rgb_construct(RGB_Node *nodes, int count, int depth) {
+/* TODO: Remove me? */
+static RGB_Node *rgb_construct(RGB_Node *nodes, int count, int depth) {
     /* `unsorted_nodes` should be a big array of RGB_Node structs. The
      * name and the colour should be set to whatever they will be in the
      * final structure, but the initial value for the axis *MUST* be 0.
@@ -170,11 +154,8 @@ RGB_Node *rgb_construct(RGB_Node *nodes, int count, int depth) {
     return median;
 }
 
-
 /* Traversal functions. */
-static void foreach_df(RGB_Node *node, void (*func)(RGB_Node*, int), int
-        depth)
-{
+static void foreach_df(const RGB_Node *node, NodeFunc func, int depth) {
     func(node, depth);
 
     if (node->left) {
@@ -187,18 +168,14 @@ static void foreach_df(RGB_Node *node, void (*func)(RGB_Node*, int), int
 
 }
 
-void rgb_foreach_df(RGB_Node *node, void (*func)(RGB_Node *, int)) {
+void rgb_foreach_df(const RGB_Node *node,
+        void (*func)(const RGB_Node *, int)) {
     foreach_df(node, func, 0);
 }
 
 /* Traversing callbacks. */
-void rgb_print_node(RGB_Node *node, int depth) {
-    if (!node->name) {
-        printf("Null colour node!\n");
-        return;
-    }
-
-    RGB_Tuple *rgb = &node->colour;
+void rgb_print_node(const RGB_Node *node, int depth) {
+    const RGB_Tuple *rgb = &node->colour;
 
     /* Print indents for depth. */
     int i;
@@ -206,7 +183,7 @@ void rgb_print_node(RGB_Node *node, int depth) {
         putchar('\t');
     }
 
-    printf("%s (0x%02X%02X%02X)\n", node->name,
+    printf("%03d (0x%02X%02X%02X)\n", node->id,
             (int) rgb->channel.red,
             (int) rgb->channel.green,
             (int) rgb->channel.blue);
@@ -216,7 +193,7 @@ void rgb_print_node(RGB_Node *node, int depth) {
 _Static_assert(195075 <= INT_MAX, "Cannot store max distance in UINT");
 
 /* Utility functions. */
-int rgb_colour_distance(RGB_Tuple *p, RGB_Tuple *q) {
+int rgb_colour_distance(const RGB_Tuple *p, const RGB_Tuple *q) {
     int i;
     int accumulator, squared_distance = 0;
 
