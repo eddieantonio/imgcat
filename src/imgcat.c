@@ -62,22 +62,21 @@ void reallocate_and_resize(Image *image, int new_width);
 
 void print_image(const char *filename, int max_width, Format format) {
     Image image;
-    /* Load with 3 components. */
-    unsigned char *buffer = stbi_load(filename,
+
+    /* Load with any number of components. */
+    image.buffer = stbi_load(filename,
                                       &image.width,
                                       &image.height,
                                       &image.depth, 0);
 
-    /* TODO: Turn into a genuine image. */
-    assert(buffer != NULL && "Could not load image!");
-    image.buffer = buffer;
+    /* TODO: Error if cannot load. */
+    assert(image.buffer != NULL && "Could not load image!");
 
     /* Maybe do a resize. */
     if (image.width > max_width) {
         /* Warning: allocates a new buffer and frees the current one. */
         reallocate_and_resize(&image, max_width);
     }
-
 
     /* That resized buffer? Yeah. Print it. */
     switch (format) {
@@ -94,7 +93,7 @@ void print_image(const char *filename, int max_width, Format format) {
             assert(0 && "Not a valid format.");
     }
 
-    stbi_image_free(buffer);
+    free(image.buffer);
 }
 
 void determine_terminal_capabilities() {

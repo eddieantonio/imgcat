@@ -6,7 +6,7 @@ all: $(BIN)
 $(BIN): $(SRC)
 	scons
 install: $(SRC)
-	scons install
+	scons install production=true
 production: $(SRC)
 	scons production=true
 test: $(BIN)
