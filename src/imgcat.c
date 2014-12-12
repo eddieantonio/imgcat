@@ -18,9 +18,12 @@ typedef enum {
 
 /* Global, bite me. */
 static struct {
-    Format format;      /* Default: 256 colors. */
-    bool should_resize; /* Default: yes! */
-} options;
+    Format format;
+    bool should_resize;
+} options = {
+    .format = F_256_COLOR,     /* Default: 256 colors. */
+    .should_resize = true,      /* Default: yes! */
+};
 
 static struct {
     int width;
