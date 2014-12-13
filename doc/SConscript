@@ -1,5 +1,14 @@
-manpage_builder = Builder(action='''pandoc -sw man -Vdate="$$(date +'%B %d, %Y')"  $SOURCE -o $TARGET''')
+import os
+
+manpage_builder = Builder(action='pandoc -sw man '
+                                 '''-Vdate="$$(date +'%B %d, %Y')" '''
+                                 '$SOURCE -o $TARGET')
 env = Environment(BUILDERS={'Manpage': manpage_builder})
 
-manpage = env.Manpage('imgcat.1', 'imgcat.1.md')
+# Build from pandoc only if it exists.
+if os.system('which pandoc') == 0:
+    manpage = env.Manpage('imgcat.1', 'imgcat.1.md')
+else:
+    manpage = File('imgcat.1')
+
 Return(['manpage'])
