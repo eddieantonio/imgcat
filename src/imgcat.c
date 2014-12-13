@@ -131,11 +131,11 @@ static void bad_usage(const char *msg, ...) {
 }
 
 static Format parse_format(const char *arg) {
-    if (strncmp(arg, "256", 4)) {
+    if (strncmp(arg, "256", 4) == 0) {
         return F_256_COLOR;
-    } else if (strncmp(arg, "8", 2) || strncmp(arg, "ansi", 5)) {
+    } else if ((strncmp(arg, "8", 2) == 0) || (strncmp(arg, "ansi", 5) == 0)) {
         return F_8_COLOR;
-    } else if (strncmp(arg, "rgb", 4)) {
+    } else if (strncmp(arg, "rgb", 4) == 0) {
         return F_UNSET;
     }
     return F_UNSET;
