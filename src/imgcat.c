@@ -117,7 +117,7 @@ static void usage(FILE *dest) {
 static void bad_usage(const char *msg, ...) {
     va_list args;
 
-    fprintf(stderr, "%s:", program_name);
+    fprintf(stderr, "%s: ", program_name);
 
     va_start(args, msg);
     vfprintf(stderr, msg, args);
@@ -170,10 +170,8 @@ static int parse_args(int argc, char **argv) {
                 exit(0);
                 break;
 
+            /* Unknown option. */
             case '?':
-                /* Unknown option. */
-                fprintf(stderr, "Unknown option: %s\n", argv[optind]);
-
             default:
                 usage(stderr);
                 exit(-1);
