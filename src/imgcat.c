@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 
 #include <getopt.h>
@@ -12,6 +13,8 @@
 #include <unistd.h>
 
 #include "print_image.h"
+
+#define EXIT_USAGE  -1
 
 #define WIDTH_UNSET -1
 
@@ -26,6 +29,7 @@ static struct {
     .width = WIDTH_UNSET,
 };
 
+/* Terminal info. */
 static struct {
     int width;
     int height;
@@ -33,23 +37,35 @@ static struct {
     bool isatty;
 } terminal;
 
-static void usage(FILE *dest);
-static int parse_args(int argc, char **argv);
-static void determine_terminal_capabilities();
+/* Long options */
+static struct option long_options[] = {
+     { "no-resize",     no_argument,            NULL,           'R' },
+     { "width",         required_argument,      NULL,           'w' },
+     { "depth",         required_argument,      NULL,           'd' },
+     { NULL,            0,                      NULL,           0 }
+};
 
+
+/* Returns index of first positional argument. */
+static int parse_args(int argc, char **argv);
+static void bad_usage(const char *msg, ...) __attribute__((noreturn));
+static void determine_terminal_capabilities();
+static void usage(FILE *dest);
+
+/* Set first thing in main(). */
+static char const* program_name;
 
 
 int main(int argc, char **argv) {
     int width, image_name_index;
+    program_name = argv[0];
 
     image_name_index = parse_args(argc, argv);
     determine_terminal_capabilities();
 
     /* No image file specified. */
     if (image_name_index == argc) {
-        fprintf(stderr, "Must specify an image!\n");
-        usage(stderr);
-        exit(-1);
+        bad_usage("Must specify an image file.");
     }
 
     if (options.width >= 1) {
@@ -62,6 +78,7 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
 
 static void determine_terminal_capabilities() {
     FILE *tput;
@@ -89,21 +106,36 @@ static void determine_terminal_capabilities() {
 }
 
 
-
 static void usage(FILE *dest) {
     fprintf(dest, "Usage: \timgcat [-w width|-R] [-d depth] image.jpg\n\n");
-
 }
 
-/* Long options */
-static struct option long_options[] = {
-     { "no-resize",     no_argument,            NULL,           'R' },
-     { "width",         required_argument,      NULL,           'w' },
-     { "depth",         required_argument,      NULL,           'd' },
-     { NULL,            0,                      NULL,           0 }
-};
+static void bad_usage(const char *msg, ...) {
+    va_list args;
 
-static Format parse_format(const char *arg);
+    fprintf(stderr, "%s:", program_name);
+
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+
+    fprintf(stderr, "\n");
+
+    usage(stderr);
+
+    exit(EXIT_USAGE);
+}
+
+static Format parse_format(const char *arg) {
+    if (strncmp(arg, "256", 4)) {
+        return F_256_COLOR;
+    } else if (strncmp(arg, "8", 2) || strncmp(arg, "ansi", 5)) {
+        return F_8_COLOR;
+    } else if (strncmp(arg, "rgb", 4)) {
+        return F_UNSET;
+    }
+    return F_UNSET;
+}
 
 static int parse_args(int argc, char **argv) {
     int c;
@@ -121,13 +153,9 @@ static int parse_args(int argc, char **argv) {
             case 'd':
                 options.format = parse_format(optarg);
                 if (options.format == F_UNSET) {
-                    fprintf(stderr, "Unknown output format: %s\n", optarg);
-                    /* This funky control flow sends us to print usage. */
-                    c = -1;
-                } else {
-                    break;
+                    bad_usage("Unknown output format: %s", optarg);
                 }
-
+                break;
             case 'R':
                 options.should_resize = false;
                 break;
@@ -148,15 +176,4 @@ static int parse_args(int argc, char **argv) {
     }
 
     return optind;
-}
-
-static Format parse_format(const char *arg) {
-    if (strncmp(arg, "256", 4)) {
-        return F_256_COLOR;
-    } else if (strncmp(arg, "8", 2) || strncmp(arg, "ansi", 5)) {
-        return F_8_COLOR;
-    } else if (strncmp(arg, "rgb", 4)) {
-        return F_UNSET;
-    }
-    return F_UNSET;
 }
