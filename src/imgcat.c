@@ -40,7 +40,7 @@ static struct {
     int height;
     int colors;
     bool isatty;
-} terminal_info;
+} terminal;
 
 typedef struct {
     unsigned char *buffer;
@@ -49,16 +49,32 @@ typedef struct {
     int depth;
 } Image;
 
+static void usage(FILE *dest);
 static int parse_args(int argc, char **argv);
 static void print_image(const char *filename, int max_width, Format format);
 static void determine_terminal_capabilities();
 
 
 int main(int argc, char **argv) {
-    int image_name = parse_args(argc, argv);
+    int width, image_name_index;
+
+    image_name_index = parse_args(argc, argv);
     determine_terminal_capabilities();
 
-    print_image(argv[image_name], terminal_info.width, F_256_COLOR);
+    /* No image file specified. */
+    if (image_name_index == argc) {
+        fprintf(stderr, "Must specify an image!\n");
+        usage(stderr);
+        exit(-1);
+    }
+
+    if (options.width >= 1) {
+        width = options.width;
+    } else {
+        width = terminal.width;
+    }
+
+    print_image(argv[image_name_index], width, F_256_COLOR);
 
     return 0;
 }
@@ -111,22 +127,22 @@ static void determine_terminal_capabilities() {
     int colors;
 
     if (!isatty(stdout_fd)) {
-        terminal_info.isatty = false;
+        terminal.isatty = false;
         return;
     }
 
-    terminal_info.isatty = true;
+    terminal.isatty = true;
 
     /* Get the current window size. */
     assert(ioctl(stdout_fd, TIOCGWINSZ, &ws) != -1);
-    terminal_info.width = ws.ws_col;
-    terminal_info.height = ws.ws_row;
+    terminal.width = ws.ws_col;
+    terminal.height = ws.ws_row;
 
     /* I don't really know of a better way to do this other than invoke tput. */
     assert((tput = popen("tput colors", "r")) != NULL);
     assert(fscanf(tput, "%d", &colors) == 1);
     assert(pclose(tput) != -1);
-    terminal_info.colors = colors;
+    terminal.colors = colors;
 }
 
 void print_image_256(Image *image) {
@@ -197,7 +213,7 @@ static int parse_args(int argc, char **argv) {
 
         switch (c) {
             case 'w':
-                options.should_resize = false;
+                options.width = (int)strtol(optarg, NULL, 10);
                 break;
 
             case 'd':
