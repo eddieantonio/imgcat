@@ -5,8 +5,7 @@ EnsureSConsVersion(2, 1)
 PREFIX = '/usr/local'
 BINDIR = os.path.join(PREFIX, 'bin')
 
-VariantDir('build', 'src')
-program = SConscript('build/Sconscript')
+program = SConscript('src/SConscript', variant_dir='build')
 
 Install(BINDIR, program)
 Alias('install', BINDIR)
