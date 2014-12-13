@@ -19,5 +19,7 @@ rgbtree = ['rgbtree.c']
 libraries = rgbtree + stb_image + stb_image_resize
 
 # The actual program.
-program = env.Program(target='imgcat', source=['imgcat.c'] + libraries)
+program = env.Program(target='imgcat',
+                      source=['imgcat.c'] + libraries,
+                      LIBS='m')
 Return('program')
