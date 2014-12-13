@@ -1,7 +1,6 @@
 language: c
-script:
-  - scons production=true
-  - make test
+script: 'scons production=true && make test'
 compiler:
-  - clang
+  # I'd like to test with clang, but it's `sh` says it's not found?
+  # https://travis-ci.org/eddieantonio/imgcat/jobs/43945258#L98
   - gcc
