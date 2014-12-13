@@ -10,7 +10,7 @@ install: $(SRC)
 production: $(SRC)
 	scons production=true
 test: $(BIN)
-	$(BIN) test/small_xterm_256color_chart.png
+	$(BIN) -R test/small_xterm_256color_chart.png
 clean:
 	scons -c
 	$(RM) -r build/

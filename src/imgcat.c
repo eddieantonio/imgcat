@@ -2,27 +2,34 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+#include <getopt.h>
+
+#include "rgbtree.h"
 #include "stb_image.h"
 #include "stb_image_resize.h"
 
-#include "rgbtree.h"
 
-
+/* The output color depth/format. */
 typedef enum {
     F_8_COLOR, F_256_COLOR, F_RGB_COLOR, F_UNSET
 } Format;
+
+#define WIDTH_UNSET -1
 
 /* Global, bite me. */
 static struct {
     Format format;
     bool should_resize;
+    int width;
 } options = {
-    .format = F_256_COLOR,     /* Default: 256 colors. */
+    .format = F_256_COLOR,      /* Default: 256 colors. */
     .should_resize = true,      /* Default: yes! */
+    .width = WIDTH_UNSET,
 };
 
 static struct {
@@ -39,20 +46,19 @@ typedef struct {
     int depth;
 } Image;
 
+static int parse_args(int argc, char **argv);
+static void print_image(const char *filename, int max_width, Format format);
+static void determine_terminal_capabilities();
 
-void parse_args(int argc, char **argv);
-void print_image(const char *filename, int max_width, Format format);
-void determine_terminal_capabilities();
 
 int main(int argc, char **argv) {
-    parse_args(argc, argv);
+    int image_name = parse_args(argc, argv);
     determine_terminal_capabilities();
 
-    print_image(argv[1], terminal_info.width, F_256_COLOR);
+    print_image(argv[image_name], terminal_info.width, F_256_COLOR);
 
     return 0;
 }
-
 
 
 void print_image_8(Image *image);
@@ -60,14 +66,13 @@ void print_image_256(Image *image);
 void print_image_rgb(Image *image);
 void reallocate_and_resize(Image *image, int new_width);
 
-void print_image(const char *filename, int max_width, Format format) {
+static void print_image(const char *filename, int max_width, Format format) {
     Image image;
 
     /* Load with any number of components. */
-    image.buffer = stbi_load(filename,
-                                      &image.width,
-                                      &image.height,
-                                      &image.depth, 0);
+    image.buffer = stbi_load(filename, &image.width,
+                                       &image.height,
+                                       &image.depth, 0);
 
     /* TODO: Error if cannot load. */
     assert(image.buffer != NULL && "Could not load image!");
@@ -96,7 +101,7 @@ void print_image(const char *filename, int max_width, Format format) {
     free(image.buffer);
 }
 
-void determine_terminal_capabilities() {
+static void determine_terminal_capabilities() {
     FILE *tput;
     int stdout_fd = fileno(stdout);
     struct winsize ws;
@@ -119,12 +124,6 @@ void determine_terminal_capabilities() {
     assert(fscanf(tput, "%d", &colors) == 1);
     assert(pclose(tput) != -1);
     terminal_info.colors = colors;
-}
-
-void parse_args(int argc, char **argv) {
-    /* TODO: */
-    options.format = F_256_COLOR;
-    options.should_resize = true;
 }
 
 void print_image_256(Image *image) {
@@ -166,4 +165,77 @@ void reallocate_and_resize(Image *image, int new_width) {
     image->height = new_height;
 
     stbi_image_free(original);
+}
+
+
+
+static void usage(FILE *dest) {
+    fprintf(dest, "Usage: \timgcat [-w width|-R] [-d depth] image.jpg\n\n");
+
+}
+
+/* Long options */
+static struct option long_options[] = {
+     { "no-resize",     no_argument,            NULL,           'R' },
+     { "width",         required_argument,      NULL,           'w' },
+     { "depth",         required_argument,      NULL,           'd' },
+     { NULL,            0,                      NULL,           0 }
+};
+
+static Format parse_format(const char *arg);
+
+static int parse_args(int argc, char **argv) {
+    int c;
+
+    while (1) {
+        c = getopt_long(argc, argv, "w:d:Rh", long_options, NULL);
+        if (c == -1)
+            break;
+
+        switch (c) {
+            case 'w':
+                options.should_resize = false;
+                break;
+
+            case 'd':
+                options.format = parse_format(optarg);
+                if (options.format == F_UNSET) {
+                    fprintf(stderr, "Unknown output format: %s\n", optarg);
+                    /* This funky control flow sends us to print usage. */
+                    c = -1;
+                } else {
+                    break;
+                }
+
+            case 'R':
+                options.should_resize = false;
+                break;
+
+            case 'h':
+                usage(stdout);
+                exit(0);
+                break;
+
+            case '?':
+                /* Unknown option. */
+                fprintf(stderr, "Unknown option: %s\n", argv[optind]);
+
+            default:
+                usage(stderr);
+                exit(-1);
+        }
+    }
+
+    return optind;
+}
+
+static Format parse_format(const char *arg) {
+    if (strncmp(arg, "256", 4)) {
+        return F_256_COLOR;
+    } else if (strncmp(arg, "8", 2) || strncmp(arg, "ansi", 5)) {
+        return F_8_COLOR;
+    } else if (strncmp(arg, "rgb", 4)) {
+        return F_UNSET;
+    }
+    return F_UNSET;
 }
