@@ -1,7 +1,16 @@
+import os
+
 # Set up flags for debug and for production.
 CCFLAGS = '-O2' if ARGUMENTS.get('production', False) else '-g'
 env = Environment(CCFLAGS=CCFLAGS)
-env.Append(CCFLAGS=['-std=c11'])
+
+# Get CC from environment
+CC = os.getenv('CC', env['CC'])
+env['CC'] = CC
+
+# ...and configure -std flag appropriately.
+CSTD = '-std=c1x' if CC == 'gcc' else '-std=c11'
+env.Append(CCFLAGS=[CSTD])
 
 # Libraries.
 stb_image = ['stb_image.c']
