@@ -4,6 +4,9 @@
 #ifndef PRINT_IMAGE_H
 #define PRINT_IMAGE_H
 
+/* The width has been left unspecified. */
+#define WIDTH_UNSET     -1
+
 /* The output color depth/format. */
 typedef enum {
     F_8_COLOR, F_256_COLOR, F_RGB_COLOR, F_UNSET

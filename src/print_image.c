@@ -37,7 +37,7 @@ void print_image(const char *filename, int max_width, Format format) {
     assert(image.buffer != NULL && "Could not load image!");
 
     /* Maybe do a resize. */
-    if (image.width > max_width) {
+    if ((max_width != WIDTH_UNSET) && (image.width > max_width)) {
         /* Warning: allocates a new buffer and frees the current one. */
         reallocate_and_resize(&image, max_width);
     }

@@ -16,7 +16,6 @@
 
 #define EXIT_USAGE  -1
 
-#define WIDTH_UNSET -1
 
 /* Global, bite me. */
 static struct {
@@ -61,16 +60,21 @@ int main(int argc, char **argv) {
     program_name = argv[0];
 
     image_name_index = parse_args(argc, argv);
-    determine_terminal_capabilities();
 
     /* No image file specified. */
     if (image_name_index == argc) {
         bad_usage("Must specify an image file.");
     }
 
-    if (options.width >= 1) {
+    determine_terminal_capabilities();
+
+    /* Determine if the image should be resized. */
+    if (!options.should_resize) {
+        width = WIDTH_UNSET;
+    } else if (options.width >= 1) {
         width = options.width;
     } else {
+        /* Get size from what was infered from the terminal. */
         width = terminal.width;
     }
 
@@ -147,6 +151,7 @@ static int parse_args(int argc, char **argv) {
 
         switch (c) {
             case 'w':
+                /* TODO: validate argument. */
                 options.width = (int)strtol(optarg, NULL, 10);
                 break;
 
