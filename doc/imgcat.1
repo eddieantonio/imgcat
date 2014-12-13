@@ -1,0 +1,75 @@
+.TH "IMGCAT" "1" "December 13, 2014" "imgcat User Manual" "meow"
+.SH NAME
+.PP
+\f[B]imgcat\f[] \- cat, but for images
+.SH SYNOPSIS
+.PP
+\f[B]imgcat\f[] [\f[B]\-w\f[] \f[I]COLS\f[]|\f[B]\-R\f[]] [\f[B]\-d\f[]
+\f[I]MODE\f[]] [\f[I]options\f[]] \f[I]image.ext\f[]
+.SH DESCRIPTION
+.PP
+\f[B]imgcat\f[] prints images to your terminal screen.
+Yes, indeed it does.
+.PP
+By default, the image is printed to the full width of the terminal, and
+the image is printed at the colour depth detected for your terminal.
+These can be overridden using \f[B]\-w\f[] or \f[B]\-R\f[] and
+\f[B]\-d\f[], respectively.
+.PP
+\f[B]Make sure your \f[C]TERM\f[] environment variable is set to a
+terminfo with the full capabilities of you terminal!\f[] See
+\f[B]Troubleshooting\f[] if you\[aq]re having a problem with this.
+.SS Options
+.TP
+.B \f[B]\-w\f[] \f[I]COLS\f[], \f[B]\-\-width\f[]=\f[I]COLS\f[]
+Resize image to \f[I]COLS\f[] characters wide (maintaining aspect
+ratio).
+Does nothing if \f[B]\-\-no\-resize\f[] is provided.
+.RS
+.RE
+.TP
+.B \f[B]\-d\f[] \f[I]MODE\f[], \f[B]\-\-depth\f[]=\f[I]MODE\f[]
+Explicitly set the output color depth to one of \f[B]ansi\f[],
+\f[B]8\f[] (alias of \f[B]ansi\f[]), or \f[B]256\f[].
+If not provided, the output color depth will be inferred with
+\f[C]tput\ colors\f[].
+.RS
+.RE
+.TP
+.B \f[B]\-R\f[], \f[B]\-\-no\-resize\f[]
+Does not resize the image to fit the terminal width.
+Overrides \f[B]\-\-width\f[].
+.RS
+.RE
+.SS Troubleshooting
+.PP
+First, test how many colors your terminal can output:
+.IP
+.nf
+\f[C]
+$\ tput\ colors
+256
+\f[]
+.fi
+.PP
+If this is not what you expect, you might want to change your
+\f[C]TERM\f[] environment variable.
+For example, iTerm2 users will probably want the following:
+.IP
+.nf
+\f[C]
+$\ export\ TERM=xterm\-256color
+\f[]
+.fi
+.PP
+However, it\[aq]s better that your terminal emulator reports itself with
+the proper value for \f[C]TERM\f[].
+For iTerm2, again, look under the current profile settings > Terminal >
+Terminal Emulation > and change "Report Terminal Type".
+.SH BUGS
+.PP
+See GitHub Issues: <https://github.com/eddieantonio/imgcat/issues>
+.SH AUTHOR
+.PP
+\f[B]imgcat\f[] was written by Eddie Antonio Santos
+<http://eddieantonio.ca>.

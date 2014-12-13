@@ -4,8 +4,12 @@ EnsureSConsVersion(2, 1)
 
 PREFIX = '/usr/local'
 BINDIR = os.path.join(PREFIX, 'bin')
+MANDIR = os.path.join(PREFIX, 'share', 'man', 'man1')
 
 program = SConscript('src/SConscript', variant_dir='build')
+manpage = SConscript('doc/SConscript')
 
 Install(BINDIR, program)
+Install(MANDIR, manpage)
 Alias('install', BINDIR)
+Alias('install', MANDIR)

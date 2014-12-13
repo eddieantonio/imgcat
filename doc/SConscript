@@ -1,0 +1,5 @@
+manpage_builder = Builder(action='''pandoc -sw man -Vdate="$$(date +'%B %d, %Y')"  $SOURCE -o $TARGET''')
+env = Environment(BUILDERS={'Manpage': manpage_builder})
+
+manpage = env.Manpage('imgcat.1', 'imgcat.1.md')
+Return(['manpage'])
