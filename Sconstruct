@@ -1,10 +1,12 @@
 import os
 
+EnsureSConsVersion(2, 1)
+
 PREFIX = '/usr/local'
 BINDIR = os.path.join(PREFIX, 'bin')
 
-env = Environment()
-program = SConscript('src/Sconscript', variant_dir='build')
+VariantDir('build', 'src')
+program = SConscript('build/Sconscript')
 
-env.Install(BINDIR, program)
-env.Alias('install', BINDIR)
+Install(BINDIR, program)
+Alias('install', BINDIR)
