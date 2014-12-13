@@ -1,26 +1,17 @@
+/* glibc checks for this to adhere to an early 90s standard... */
+#define _POSIX_C_SOURCE 2
+
 #include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* glibc checks for this to adhere to an early 90s standard... */
-#define _POSIX_C_SOURCE 2
-#include <stdio.h>
-
-#include <unistd.h>
-#include <sys/ioctl.h>
-
 #include <getopt.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
-#include "rgbtree.h"
-#include "stb_image.h"
-#include "stb_image_resize.h"
-
-
-/* The output color depth/format. */
-typedef enum {
-    F_8_COLOR, F_256_COLOR, F_RGB_COLOR, F_UNSET
-} Format;
+#include "print_image.h"
 
 #define WIDTH_UNSET -1
 
@@ -42,17 +33,10 @@ static struct {
     bool isatty;
 } terminal;
 
-typedef struct {
-    unsigned char *buffer;
-    int width;
-    int height;
-    int depth;
-} Image;
-
 static void usage(FILE *dest);
 static int parse_args(int argc, char **argv);
-static void print_image(const char *filename, int max_width, Format format);
 static void determine_terminal_capabilities();
+
 
 
 int main(int argc, char **argv) {
@@ -79,47 +63,6 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-
-void print_image_8(Image *image);
-void print_image_256(Image *image);
-void print_image_rgb(Image *image);
-void reallocate_and_resize(Image *image, int new_width);
-
-static void print_image(const char *filename, int max_width, Format format) {
-    Image image;
-
-    /* Load with any number of components. */
-    image.buffer = stbi_load(filename, &image.width,
-                                       &image.height,
-                                       &image.depth, 0);
-
-    /* TODO: Error if cannot load. */
-    assert(image.buffer != NULL && "Could not load image!");
-
-    /* Maybe do a resize. */
-    if (image.width > max_width) {
-        /* Warning: allocates a new buffer and frees the current one. */
-        reallocate_and_resize(&image, max_width);
-    }
-
-    /* That resized buffer? Yeah. Print it. */
-    switch (format) {
-        case F_8_COLOR:
-            assert(0 && "Not implemented!");
-            break;
-        case F_256_COLOR:
-            print_image_256(&image);
-            break;
-        case F_RGB_COLOR:
-            assert(0 && "Not implemented!");
-            break;
-        default:
-            assert(0 && "Not a valid format.");
-    }
-
-    free(image.buffer);
-}
-
 static void determine_terminal_capabilities() {
     FILE *tput;
     int stdout_fd = fileno(stdout);
@@ -143,47 +86,6 @@ static void determine_terminal_capabilities() {
     assert(fscanf(tput, "%d", &colors) == 1);
     assert(pclose(tput) != -1);
     terminal.colors = colors;
-}
-
-void print_image_256(Image *image) {
-    int x, y;
-    int width = image->width, height = image->height;
-    int color_depth = image->depth;
-    unsigned char *buffer = image->buffer;
-
-    for (y = 0; y < height; y++) {
-        /* Print each pixel. */
-        for (x = 0; x < width; x++) {
-            /* Get the position of the pixel in the image... */
-            uint8_t *pixel = buffer + color_depth * (x + width * y);
-            const RGB_Node *match = rgb_closest_colour(pixel[0], pixel[1], pixel[2]);
-            int closest_code = match->id;
-            printf("\033[48;5;%03dm ", closest_code);
-        }
-        /* Finish the line. */
-        printf("\033[49m\n");
-    }
-}
-
-void reallocate_and_resize(Image *image, int new_width) {
-    unsigned char *original = image->buffer;
-    unsigned char *resized;
-    double ratio = ((double) image->height) / image->width;
-    int new_height = ratio * new_width;
-    int color_depth = image->depth;
-
-    size_t buffer_size = color_depth * (new_width * new_height);
-
-    resized = (unsigned char*) malloc(buffer_size);
-    stbir_resize_uint8(original, image->width, image->height, 0,
-                       resized, new_width, new_height, 0, color_depth);
-
-    /* Replace all the originals with our new, fun values. */
-    image->buffer = resized;
-    image->width = new_width;
-    image->height = new_height;
-
-    stbi_image_free(original);
 }
 
 
