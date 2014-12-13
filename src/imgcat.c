@@ -1,8 +1,11 @@
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* glibc checks for this to adhere to an early 90s standard... */
+#define _POSIX_C_SOURCE 2
+#include <stdio.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
