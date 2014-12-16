@@ -23,7 +23,7 @@ static struct {
     bool should_resize;
     int width;
 } options = {
-    .format = F_256_COLOR,      /* Default: 256 colors. */
+    .format = F_UNSET,          /* Default: 256 colors. */
     .should_resize = true,      /* Default: yes! */
     .width = WIDTH_UNSET,
 };
