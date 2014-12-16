@@ -10,7 +10,8 @@ install: $(SRC)
 production: $(SRC)
 	scons production=true
 test: $(BIN)
-	$(BIN) -R test/1px_256_table.png | diff test/1px_256_color.txt -
+	$(BIN) -R -d 256 test/1px_256_table.png | diff test/1px_256_table.out -
+	$(BIN) -R -d   8 test/1px_8_table.png   | diff test/1px_8_table.out   -
 clean:
 	scons -c
 	$(RM) -r build/
