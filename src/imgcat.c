@@ -34,6 +34,7 @@ static struct {
     int height;
     int colors;
     bool isatty;
+    Format optimum_format;
 } terminal;
 
 /* Long options */
@@ -57,6 +58,7 @@ static char const* program_name;
 
 int main(int argc, char **argv) {
     int width, image_name_index;
+    Format color_format = F_UNSET;
     program_name = argv[0];
 
     image_name_index = parse_args(argc, argv);
@@ -78,7 +80,14 @@ int main(int argc, char **argv) {
         width = terminal.width;
     }
 
-    print_image(argv[image_name_index], width, F_256_COLOR);
+    /* Set color format either from options, or infered from the terminal. */
+    if (options.format != F_UNSET) {
+        color_format = options.format;
+    } else {
+        color_format = terminal.optimum_format;
+    }
+
+    print_image(argv[image_name_index], width, color_format);
 
     return 0;
 }
@@ -107,6 +116,14 @@ static void determine_terminal_capabilities() {
     assert(fscanf(tput, "%d", &colors) == 1);
     assert(pclose(tput) != -1);
     terminal.colors = colors;
+
+    if (colors >= 256) {
+        terminal.optimum_format = F_256_COLOR;
+    } else if (colors >= 8) {
+        terminal.optimum_format = F_8_COLOR;
+    } else {
+        assert(0 && "Don't know what color depth is best for you...");
+    }
 }
 
 
