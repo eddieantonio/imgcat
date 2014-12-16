@@ -12,19 +12,28 @@
 
 **imgcat** prints images to your terminal screen. Yes, indeed it does.
 
-By default, the image is printed to the full width of the terminal, and
-the image is printed at the colour depth detected for your terminal.
-These can be overridden using **-w** or **-R** and **-d**, respectively.
+By default, the image is printed at the full width and colour depth
+detected for your terminal. These can be overridden using **-w** to
+adjust the maximum width or **-R** to prevent resizing, even if the
+image is too big to fit in the terminal; and **-d** to explicitly the
+set color depth.
 
 __Make sure your `TERM` environment variable is set to a terminfo with
 the full capabilities of you terminal!__ See **Troubleshooting** if
 you're having a problem with this.
 
+If the output stream is not a terminal (that is, output is redirected to
+a file, or piped into another program), then the image is **not**
+resized to the size of the terminal. It does, however, uses the color
+depth of terminal set in the `TERM` environment variable. Overriding
+both width and color depth still work.
+
 ## Options
 
 **-w** _COLS_, **--width**=_COLS_
-  ~ Resize image to _COLS_ characters wide (maintaining aspect ratio).
-  Does nothing if **--no-resize** is provided.
+  ~ Shrink the image to _COLS_ characters wide (maintaining aspect ratio).
+  Does nothing if **--no-resize** is provided, or if the image is
+  already as small as the provided width.
 
 **-d** _MODE_, **--depth**=_MODE_
   ~ Explicitly set the output color depth to one of **ansi**, **8**
@@ -32,7 +41,7 @@ you're having a problem with this.
   depth will be inferred with `tput colors`.
 
 **-R**, **--no-resize**
-  ~ Does not resize the image to fit the terminal width. Overrides
+  ~ Does not resize the image to fit the terminal's width. Overrides
   **--width**.
 
 ## Troubleshooting

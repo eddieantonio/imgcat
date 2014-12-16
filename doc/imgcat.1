@@ -1,4 +1,4 @@
-.TH "IMGCAT" "1" "December 13, 2014" "imgcat User Manual" "meow"
+.TH "IMGCAT" "1" "December 16, 2014" "imgcat User Manual" "meow"
 .SH NAME
 .PP
 \f[B]imgcat\f[] \- cat, but for images
@@ -11,20 +11,29 @@
 \f[B]imgcat\f[] prints images to your terminal screen.
 Yes, indeed it does.
 .PP
-By default, the image is printed to the full width of the terminal, and
-the image is printed at the colour depth detected for your terminal.
-These can be overridden using \f[B]\-w\f[] or \f[B]\-R\f[] and
-\f[B]\-d\f[], respectively.
+By default, the image is printed at the full width and colour depth
+detected for your terminal.
+These can be overridden using \f[B]\-w\f[] to adjust the maximum width
+or \f[B]\-R\f[] to prevent resizing, even if the image is too big to fit
+in the terminal; and \f[B]\-d\f[] to explicitly the set color depth.
 .PP
 \f[B]Make sure your \f[C]TERM\f[] environment variable is set to a
 terminfo with the full capabilities of you terminal!\f[] See
 \f[B]Troubleshooting\f[] if you\[aq]re having a problem with this.
+.PP
+If the output stream is not a terminal (that is, output is redirected to
+a file, or piped into another program), then the image is \f[B]not\f[]
+resized to the size of the terminal.
+It does, however, uses the color depth of terminal set in the
+\f[C]TERM\f[] environment variable.
+Overriding both width and color depth still work.
 .SS Options
 .TP
 .B \f[B]\-w\f[] \f[I]COLS\f[], \f[B]\-\-width\f[]=\f[I]COLS\f[]
-Resize image to \f[I]COLS\f[] characters wide (maintaining aspect
+Shrink the image to \f[I]COLS\f[] characters wide (maintaining aspect
 ratio).
-Does nothing if \f[B]\-\-no\-resize\f[] is provided.
+Does nothing if \f[B]\-\-no\-resize\f[] is provided, or if the image is
+already as small as the provided width.
 .RS
 .RE
 .TP
@@ -37,7 +46,7 @@ If not provided, the output color depth will be inferred with
 .RE
 .TP
 .B \f[B]\-R\f[], \f[B]\-\-no\-resize\f[]
-Does not resize the image to fit the terminal width.
+Does not resize the image to fit the terminal\[aq]s width.
 Overrides \f[B]\-\-width\f[].
 .RS
 .RE
