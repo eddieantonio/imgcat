@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     determine_terminal_capabilities();
 
     /* Determine if the image should be resized. */
-    if (options.width >= 1) {
+    if ((options.width >= 1) && (options.should_resize)) {
         /* Use explicitly provided width. */
         width = options.width;
     } else if ((!terminal.isatty) || (!options.should_resize)) {
