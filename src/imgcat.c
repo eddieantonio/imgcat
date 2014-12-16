@@ -71,12 +71,14 @@ int main(int argc, char **argv) {
     determine_terminal_capabilities();
 
     /* Determine if the image should be resized. */
-    if (!options.should_resize) {
-        width = WIDTH_UNSET;
-    } else if (options.width >= 1) {
+    if (options.width >= 1) {
+        /* Use explicitly provided width. */
         width = options.width;
+    } else if ((!terminal.isatty) || (!options.should_resize)) {
+        /* Don't resize if not a terminal or told to do so. */
+        width = WIDTH_UNSET;
     } else {
-        /* Get size from what was infered from the terminal. */
+        /* Use maximum width from what was infered of the terminal. */
         width = terminal.width;
     }
 
