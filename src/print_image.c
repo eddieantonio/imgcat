@@ -39,7 +39,7 @@ static const RGB_Tuple ansi_color_table[] = {
 
 
 
-void print_image(const char *filename, int max_width, Format format) {
+bool print_image(const char *filename, int max_width, Format format) {
     Image image;
 
     /* Load with any number of components. */
@@ -47,8 +47,10 @@ void print_image(const char *filename, int max_width, Format format) {
                                        &image.height,
                                        &image.depth, 0);
 
-    /* TODO: Error if cannot load. */
-    assert(image.buffer != NULL && "Could not load image!");
+    /* Could not load image. */
+    if (image.buffer == NULL) {
+        return false;
+    }
 
     /* Maybe do a resize. */
     if ((max_width != WIDTH_UNSET) && (image.width > max_width)) {
@@ -77,6 +79,7 @@ void print_image(const char *filename, int max_width, Format format) {
     image_iterator(&image, printer);
 
     free(image.buffer);
+    return true;
 }
 
 

@@ -58,6 +58,8 @@ static char const* program_name;
 
 int main(int argc, char **argv) {
     int width, image_name_index;
+    bool status;
+    const char *image_name;
     Format color_format = F_UNSET;
     program_name = argv[0];
 
@@ -89,7 +91,13 @@ int main(int argc, char **argv) {
         color_format = terminal.optimum_format;
     }
 
-    print_image(argv[image_name_index], width, color_format);
+    image_name = argv[image_name_index];
+
+    status = print_image(image_name, width, color_format);
+
+    if (!status) {
+        bad_usage("Failed to open image: %s", image_name);
+    }
 
     return 0;
 }
