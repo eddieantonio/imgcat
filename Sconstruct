@@ -2,7 +2,7 @@ import os
 
 EnsureSConsVersion(2, 1)
 
-PREFIX = '/usr/local'
+PREFIX = os.getenv('PREFIX', '/usr/local')
 BINDIR = os.path.join(PREFIX, 'bin')
 MANDIR = os.path.join(PREFIX, 'share', 'man', 'man1')
 
