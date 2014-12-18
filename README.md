@@ -1,8 +1,29 @@
 # imgcat
 
+[![Build Status](https://travis-ci.org/eddieantonio/imgcat.svg?branch=master)](https://travis-ci.org/eddieantonio/imgcat)
+
 It's like `cat` but for images.
 
-![$imgcat cat.jpg](http://eddieantonio.ca/imgcat/assets/50711a8ee4.png)
+![$imgcat cat.jpg](http://eddieantonio.ca/imgcat/assets/8dc8c1cde5.png)
+
+# Install
+
+On OS X:
+
+```sh
+brew tap eddieantonio/eddieantonio
+brew install imgcat
+```
+
+For other platforms, see [Build](#Build).
+
+# Usage
+
+```sh
+imgcat some_image.jpg
+```
+
+See the [manpage](./docs/imgcat.1.md) for more invocations.
 
 # Build
 
@@ -10,12 +31,7 @@ You must have [scons](http://www.scons.org/).
 
 ```sh
 scons production=true
-```
-
-# Usage
-
-```sh
-imgcat some_image.jpg
+scons install
 ```
 
 # Acknowledgements
