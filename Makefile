@@ -13,6 +13,9 @@ test: $(BIN)
 	$(BIN) -d 256 test/1px_256_table.png | diff test/1px_256_table.out -
 	$(BIN) -d   8 test/1px_8_table.png   | diff test/1px_8_table.out   -
 	$(BIN) /dev/null 2> /dev/null ; test $$? -ne 0
+	$(BIN) --width=72 test/any >  /dev/null
+	$(BIN) --width=-3 test/any 2> /dev/null ; test $$? -ne 0
+	$(BIN) -w hurrrrr test/any 2> /dev/null ; test $$? -ne 0
 clean:
 	scons -c
 	$(RM) -r build/
