@@ -178,8 +178,11 @@ static int parse_args(int argc, char **argv) {
 
         switch (c) {
             case 'w':
-                /* TODO: validate argument. */
                 options.width = (int)strtol(optarg, NULL, 10);
+                if (options.width < 1) {
+                    bad_usage("Width must be a positive integer, not '%s'",
+                              optarg);
+                }
                 break;
 
             case 'd':
