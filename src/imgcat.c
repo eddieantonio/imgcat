@@ -14,6 +14,7 @@
 
 #include "print_image.h"
 
+#define VERSION     "1.1.0"
 #define EXIT_USAGE  -1
 
 
@@ -42,6 +43,8 @@ static struct option long_options[] = {
      { "no-resize",     no_argument,            NULL,           'R' },
      { "width",         required_argument,      NULL,           'w' },
      { "depth",         required_argument,      NULL,           'd' },
+     { "help",          no_argument,            NULL,           'h' },
+     { "version",       no_argument,            NULL,           'v' },
      { NULL,            0,                      NULL,           0 }
 };
 
@@ -138,7 +141,8 @@ static void determine_terminal_capabilities() {
 
 
 static void usage(FILE *dest) {
-    fprintf(dest, "Usage: \timgcat [-w width|-R] [-d depth] image.jpg\n\n");
+    fprintf(dest, "usage:\timgcat [--width WIDTH|--no-rescale]"
+                                " [--depth (8|256)] IMAGE\n");
 }
 
 static void bad_usage(const char *msg, ...) {
@@ -172,7 +176,7 @@ static int parse_args(int argc, char **argv) {
     int c;
 
     while (1) {
-        c = getopt_long(argc, argv, "w:d:Rh", long_options, NULL);
+        c = getopt_long(argc, argv, "w:d:Rhv", long_options, NULL);
         if (c == -1)
             break;
 
@@ -197,6 +201,11 @@ static int parse_args(int argc, char **argv) {
 
             case 'h':
                 usage(stdout);
+                exit(0);
+                break;
+
+            case 'v':
+                printf("%s %s\n", program_name, VERSION);
                 exit(0);
                 break;
 
