@@ -14,7 +14,7 @@
 
 #include "print_image.h"
 
-#define VERSION     "1.1.0"
+#define VERSION     "1.1.1"
 #define EXIT_USAGE  -1
 
 
