@@ -27,11 +27,23 @@ See the [manpage](./doc/imgcat.1.md) for more invocations.
 
 # Build
 
-You must have [scons](http://www.scons.org/).
+```sh
+make production=true
+```
+
+# Install
+
+To install to `/usr/local`:
 
 ```sh
-scons production=true
-scons install
+make install
+```
+
+To change the default prefix, simply provide `PREFIX=...`
+to `make install`:
+
+```sh
+make install PREFIX=/opt
 ```
 
 # Acknowledgements
@@ -45,4 +57,4 @@ scons install
 
 # License
 
-2014 © Eddie Antonio Santos. See `LICENSE`.
+2014, 2016 © Eddie Antonio Santos. See `LICENSE`.
