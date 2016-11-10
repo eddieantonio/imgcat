@@ -16,8 +16,9 @@ $(MAN):
 
 install: production=true
 install: $(BIN) $(MAN)
-	install -d $(BIN) $(BINDIR)
-	install -d -m 644 $(MAN) $(MANDIR)
+	install -d $(BINDIR) $(MANDIR)
+	install -s $(BIN) $(BINDIR)
+	install -m 644 $(MAN) $(MANDIR)
 
 production: production=true
 production: $(SRC)
