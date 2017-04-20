@@ -17,7 +17,7 @@ brew tap eddieantonio/eddieantonio
 brew install imgcat
 ```
 
-For other platforms, see [Build](#Build).
+For other platforms, see [Build](#build).
 
 # Usage
 
@@ -25,7 +25,7 @@ For other platforms, see [Build](#Build).
 imgcat some_image.jpg
 ```
 
-See the [manpage](./doc/imgcat.1.md) for more invocations.
+See the [manpage](./docs/imgcat.1.md) for more invocations.
 
 # Build
 
