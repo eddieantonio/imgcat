@@ -1,5 +1,5 @@
 BIN = src/imgcat
-MAN = doc/imgcat.1
+MAN = docs/imgcat.1
 
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
@@ -11,7 +11,7 @@ all: $(BIN)
 $(BIN):
 	$(MAKE) -C $(dir $@)
 
-$(MAN): 
+$(MAN):
 	$(MAKE) -C $(dir $@)
 
 install: production=true
@@ -19,10 +19,6 @@ install: $(BIN) $(MAN)
 	install -d $(BINDIR) $(MANDIR)
 	install -s $(BIN) $(BINDIR)
 	install -m 644 $(MAN) $(MANDIR)
-
-production: production=true
-production: $(SRC)
-	scons production=true
 
 test: $(BIN)
 	$(BIN) -d 256 test/1px_256_table.png | diff test/1px_256_table.out -
@@ -34,6 +30,5 @@ test: $(BIN)
 
 clean:
 	$(MAKE) -C src/ clean
-	$(MAKE) -C doc/ clean
 
 .PHONY: all clean install production test

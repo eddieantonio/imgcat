@@ -4,7 +4,9 @@
 
 It's like `cat` but for images.
 
-![$imgcat cat.jpg](http://eddieantonio.ca/imgcat/assets/8dc8c1cde5.png)
+![$imgcat cat.jpg]
+
+[$imgcat cat.jpg]: https://raw.githubusercontent.com/eddieantonio/imgcat/master/docs/imgcat.png
 
 # Install
 
