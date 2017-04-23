@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# Copyright (c) 2017  Eddie Antonio Santos <easantos@ualberta.ca>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+set -u
+
+imgcat="$(realpath "$1")"
+any_image=1px_8_table.png
+
+original_dir=$(pwd)
+script_dir=$(dirname "$0")
+
+bold="$(tput bold)"
+unbold="$(tput reset)"
+
+compare_output() {
+    source="$1"; shift
+    expected="$1"; shift;
+    actual="$(mktemp)"
+
+    set -x
+    "$imgcat" "$@" "$source" > "$actual"
+
+    diff "$expected" "$actual"
+    failed=$?
+    if [ $failed -ne 0 ] ; then
+        echo "${bold}FAILED${unbold}:"
+        printf '\t%s\n' "$(basename "${imgcat}") $* $source"
+        echo 'Output:'
+        cat "$actual"
+    fi
+    return $failed
+}
+
+run_tests() {
+    set -e
+    # Compare the output of a few standard cases.
+    compare_output 1px_256_table.png 1px_256_table.out  -d 256
+    compare_output 1px_8_table.png   1px_8_table.out    -d 8
+    compare_output "$any_image"     /dev/null
+
+    # Test resizing
+    $imgcat --width=72 "$any_image" >  /dev/null
+
+    # Try erroneous invocations
+    ! $imgcat /dev/null 2> /dev/null
+    ! $imgcat --width=-3 "$any_image" 2> /dev/null
+    ! $imgcat -w hurrrrr "$any_image" 2> /dev/null
+}
+
+# Move into the tests directory
+cd "$script_dir" || exit -1
+run_tests
+test_suite_failed=$?
+# Move back to the original directory
+cd "$original_dir" || exit -1
+return $test_suite_failed
