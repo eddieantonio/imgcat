@@ -36,7 +36,7 @@ CXXFLAGS += -std=c++11
 LDLIBS = -lm -lc++
 
 BIN = imgcat
-SOURCES = imgcat load_image stb_image stb_image_resize rgbtree print_image
+SOURCES = imgcat load_image print_image rgbtree
 OBJS := $(addsuffix .o,$(SOURCES))
 
 

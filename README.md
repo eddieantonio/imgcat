@@ -56,8 +56,6 @@ Acknowledgements
 ----------------
 
  - Uses the [CImg], distributed under the [CeCILL-C] license.
- - Uses `stb_image` and `stb_image_resize` from [Sean T. Barrett's collection
-   of public domain C libraries][stb].
  - 256 Color chart and data from Jason Milkin's [public domain chart][256svg].
 
 [CImg]: https://github.com/dtschump/CImg
