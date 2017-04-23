@@ -32,8 +32,7 @@ def run_tests!
   compare_output '-d', 8,   '1px_8_table.png',    '1px_8_table.out'
 
   # Test resizing
-  # TODO: this test is incorrect; should use a width smaller than the image
-  imgcat '--width=72', AnyImage
+  imgcat '--width=12', 'Xterm_256color_chart.png'
 
   # Try erroneous invocations
   imgcat!
@@ -148,6 +147,6 @@ def run_tests
   end
 end
 
-FileUtils.cd(test_dir, :verbose => true) do
+FileUtils.cd(test_dir) do
   run_tests
 end
