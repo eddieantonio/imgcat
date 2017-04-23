@@ -33,10 +33,10 @@ endif
 
 CXXFLAGS += -std=c++11
 
-LDLIBS = -lm
+LDLIBS = -lm -lc++
 
 BIN = imgcat
-SOURCES = imgcat stb_image stb_image_resize rgbtree print_image
+SOURCES = imgcat load_image stb_image stb_image_resize rgbtree print_image
 OBJS := $(addsuffix .o,$(SOURCES))
 
 

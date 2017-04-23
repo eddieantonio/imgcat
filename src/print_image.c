@@ -42,7 +42,6 @@ typedef void (*PixelFunc)(Pixel *pixel);
 static void image_iterator(Image *image, PixelFunc printer);
 static void printer_8_color(Pixel *pixel);
 static void printer_256_color(Pixel *pixel);
-static void print_image_rgb(Image *image);
 static void reallocate_and_resize(Image *image, int new_width);
 
 /* The 8 color table. It has 8 colors. */
@@ -111,7 +110,7 @@ static void printer_256_color(Pixel *pixel) {
 /* Gets a color from the list. Will take same number of steps as the tree
  * version. */
 static void printer_8_color(Pixel *pixel) {
-    RGB_Tuple target = { pixel[0], pixel[1], pixel[2] };
+    RGB_Tuple target = {{pixel[0], pixel[1], pixel[2]}};
     int i, best_index = 0;
     unsigned int distance, closest;
     closest = rgb_colour_distance(&ansi_color_table[0], &target);

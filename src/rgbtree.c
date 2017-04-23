@@ -114,62 +114,6 @@ const RGB_Node *rgb_closest_colour(uint8_t red, uint8_t green, uint8_t blue) {
 
 }
 
-/* Construction */
-#define SORT_TEMPLATE(name, index) \
-    static int sort_##name (const void *a, const void *b) { \
-        RGB_Node *node_a = (RGB_Node*) a; \
-        RGB_Node *node_b = (RGB_Node*) b; \
-        return node_a->colour.axis[index] - node_b->colour.axis[index]; \
-    }
-
-typedef int (*ComparisonFunc)(const void *, const void*);
-SORT_TEMPLATE(red, 0)
-SORT_TEMPLATE(green, 1)
-SORT_TEMPLATE(blue, 2)
-static ComparisonFunc comparisons[] = {
-    sort_red, sort_green, sort_blue
-};
-
-#define CHANNELS (sizeof(comparisons)/sizeof(ComparisonFunc))
-
-/* TODO: Remove me? */
-static RGB_Node *rgb_construct(RGB_Node *nodes, int count, int depth) {
-    /* `unsorted_nodes` should be a big array of RGB_Node structs. The
-     * name and the colour should be set to whatever they will be in the
-     * final structure, but the initial value for the axis *MUST* be 0.
-     * The left and right pointers can be anything, (though they should
-     * probably be 0 as well).
-     */
-
-    /* Step 0: Base case: No count, no tree. */
-    if (count < 1) {
-        return NULL;
-    }
-
-    int axis = depth % CHANNELS;
-    /* Step 1: Sort! */
-    qsort(nodes, count, sizeof(RGB_Node), comparisons[axis]);
-
-    /* Step 2: Get the median. */
-    int median_index = count / 2;
-    RGB_Node *median = &nodes[median_index];
-    median->axis = axis;
-
-    /* Step 3: Build tree recursively. */
-    RGB_Node *lesser, *greater;
-    int lesser_count, greater_count;
-
-    lesser = nodes;
-    lesser_count = count / 2;
-    median->left = rgb_construct(lesser, lesser_count, depth + 1);
-
-    greater = &nodes[median_index + 1];
-    greater_count = (count - 1) /2;
-    median->right = rgb_construct(greater, greater_count, depth + 1);
-
-    return median;
-}
-
 /* Traversal functions. */
 static void foreach_df(const RGB_Node *node, NodeFunc func, int depth) {
     func(node, depth);
@@ -206,7 +150,8 @@ void rgb_print_node(const RGB_Node *node, int depth) {
 
 }
 
-_Static_assert(195075 <= INT_MAX, "Cannot store max distance in UINT");
+/* Max distance is (255**2 + 255**2 + 255**2) == 195,075 */
+_Static_assert(195075L <= INT_MAX, "Cannot store max distance in UINT");
 
 /* Utility functions. */
 int rgb_colour_distance(const RGB_Tuple *p, const RGB_Tuple *q) {
@@ -221,4 +166,3 @@ int rgb_colour_distance(const RGB_Tuple *p, const RGB_Tuple *q) {
 
     return squared_distance;
 }
-
