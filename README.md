@@ -59,4 +59,4 @@ make install PREFIX=/opt
 
 # License
 
-2014, 2016 © Eddie Antonio Santos. See `LICENSE`.
+Copyright © 2014, 2016, 2017 Eddie Antonio Santos. See `LICENSE`.

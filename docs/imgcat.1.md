@@ -6,7 +6,7 @@
 
 # SYNOPSIS
 
-| **imgcat** [**-w** _COLS_|**-R**] [**-d** _MODE_] [_options_] _image.ext_
+| **imgcat** \[**-w** _COLS_|**-R**] \[**-d** _MODE_] \[_options_] _image.ext_
 
 # DESCRIPTION
 
