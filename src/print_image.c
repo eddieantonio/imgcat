@@ -21,28 +21,19 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "print_image.h"
+#include "load_image.h"
 
 #include "rgbtree.h"
-#include "stb_image.h"
-#include "stb_image_resize.h"
-
-/* Bundles all of the image stuff in one nice struct. */
-typedef struct {
-    unsigned char *buffer;
-    int width;
-    int height;
-    int depth;
-} Image;
 
 typedef const unsigned char Pixel;
 typedef void (*PixelFunc)(Pixel *pixel);
 
-static void image_iterator(Image *image, PixelFunc printer);
+static void image_iterator(struct Image *image, PixelFunc printer);
 static void printer_8_color(Pixel *pixel);
 static void printer_256_color(Pixel *pixel);
-static void reallocate_and_resize(Image *image, int new_width);
 
 /* The 8 color table. It has 8 colors. */
 static const RGB_Tuple ansi_color_table[] = {
@@ -55,22 +46,21 @@ static const RGB_Tuple ansi_color_table[] = {
 
 
 bool print_image(const char *filename, int max_width, Format format) {
-    Image image;
+    struct Image image;
+    assert(format != F_UNSET);
 
-    /* Load with any number of components. */
-    image.buffer = stbi_load(filename, &image.width,
-                                       &image.height,
-                                       &image.depth, 0);
+    /* Load the image. */
+    bool success = load_image(filename, &image);
 
     /* Could not load image. */
-    if (image.buffer == NULL) {
+    if (!success) {
         return false;
     }
 
     /* Maybe do a resize. */
     if ((max_width != WIDTH_UNSET) && (image.width > max_width)) {
-        /* Warning: allocates a new buffer and frees the current one. */
-        reallocate_and_resize(&image, max_width);
+        fprintf(stderr, "scaling not implemented");
+        exit(-1);
     }
 
     PixelFunc printer = NULL;
@@ -83,9 +73,6 @@ bool print_image(const char *filename, int max_width, Format format) {
         case F_256_COLOR:
             printer = printer_256_color;
             break;
-        case F_RGB_COLOR:
-            assert(0 && "Not implemented!");
-            break;
         default:
             assert(0 && "Not a valid format.");
     }
@@ -93,7 +80,7 @@ bool print_image(const char *filename, int max_width, Format format) {
     /* Print the image with the given pixel func. */
     image_iterator(&image, printer);
 
-    free(image.buffer);
+    unload_image(&image);
     return true;
 }
 
@@ -129,9 +116,9 @@ static void printer_8_color(Pixel *pixel) {
 }
 
 
-static void image_iterator(Image *image, PixelFunc printer) {
+static void image_iterator(struct Image *image, PixelFunc printer) {
     int x, y;
-    int width = image->width, height = image->height;
+    const int width = image->width, height = image->height;
     int color_depth = image->depth;
     unsigned char *buffer = image->buffer;
 
@@ -148,6 +135,7 @@ static void image_iterator(Image *image, PixelFunc printer) {
 }
 
 
+#if 0
 static void reallocate_and_resize(Image *image, int new_width) {
     unsigned char *original = image->buffer;
     unsigned char *resized;
@@ -168,3 +156,4 @@ static void reallocate_and_resize(Image *image, int new_width) {
 
     stbi_image_free(original);
 }
+#endif

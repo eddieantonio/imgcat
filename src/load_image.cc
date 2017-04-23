@@ -36,7 +36,8 @@ const int colour_depth = 4;
 
 // TODO: Take "max width", "pixel ratio", "colour space".
 bool load_image(const char *filename, Image *image) {
-    image->buffer = nullptr;
+    /* Zero-out the struct. */
+    bzero(image, sizeof(struct Image));
 
     cimg_library::CImg<unsigned char> img;
     try {
@@ -91,6 +92,7 @@ bool load_image(const char *filename, Image *image) {
     image->width = img.width();
     image->height = img.height();
     image->buffer = buffer;
+    image->depth = colour_depth;
     return true;
 }
 

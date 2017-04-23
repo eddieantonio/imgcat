@@ -27,7 +27,8 @@
 
 /* The output color depth/format. */
 typedef enum {
-    F_8_COLOR, F_256_COLOR, F_RGB_COLOR, F_UNSET
+    // TODO: iterm2 passthrough,
+    F_8_COLOR, F_256_COLOR, F_UNSET
 } Format;
 
 /* Prints the image. Returns true when successful. */

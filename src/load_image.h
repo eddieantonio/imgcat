@@ -43,7 +43,7 @@ extern const int colour_depth;
  * When finished with the image, call unload_image() (also by pointer).
  */
 struct Image {
-    int width, height;
+    int width, height, depth;
     uint8_t *buffer;
 };
 
@@ -51,12 +51,12 @@ struct Image {
  * Loads the image at the given filename, into the already allocated Image
  * struct.
  */
-bool load_image(const char *filename, Image *image);
+bool load_image(const char *filename, struct Image *image);
 
 /**
  * Frees memory of the loaded image.
  */
-void unload_image(Image *image);
+void unload_image(struct Image *image);
 
 #ifdef __cplusplus
 }
