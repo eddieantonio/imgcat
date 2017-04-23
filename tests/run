@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
 # Copyright (c) 2017  Eddie Antonio Santos <easantos@ualberta.ca>
 #
@@ -14,56 +14,140 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-set -u
+# Requires Ruby 2.2
 
-imgcat="$(realpath "$1")"
-any_image=1px_8_table.png
+require 'fileutils'
+require 'tempfile'
 
-original_dir=$(pwd)
-script_dir=$(dirname "$0")
+abort "Must provide imgcat executable" if ARGV.empty?
 
-bold="$(tput bold)"
-unbold="$(tput reset)"
+Imgcat = File.realpath(ARGV.first)
+test_dir = File.dirname(__FILE__)
 
-compare_output() {
-    source="$1"; shift
-    expected="$1"; shift;
-    actual="$(mktemp)"
+AnyImage = '1px_8_table.png'
 
-    set -x
-    "$imgcat" "$@" "$source" > "$actual"
+def run_tests!
+  # Compare the output of a few standard cases.
+  compare_output '-d', 256, '1px_256_table.png',  '1px_256_table.out'
+  compare_output '-d', 8,   '1px_8_table.png',    '1px_8_table.out'
 
-    diff "$expected" "$actual"
-    failed=$?
-    if [ $failed -ne 0 ] ; then
-        echo "${bold}FAILED${unbold}:"
-        printf '\t%s\n' "$(basename "${imgcat}") $* $source"
-        echo 'Output:'
-        cat "$actual"
-    fi
-    return $failed
-}
+  # Test resizing
+  # TODO: this test is incorrect; should use a width smaller than the image
+  imgcat '--width=72', AnyImage
 
-run_tests() {
-    set -e
-    # Compare the output of a few standard cases.
-    compare_output 1px_256_table.png 1px_256_table.out  -d 256
-    compare_output 1px_8_table.png   1px_8_table.out    -d 8
-    compare_output "$any_image"     /dev/null
+  # Try erroneous invocations
+  imgcat!
+  imgcat! '--width=-3', AnyImage
+  imgcat! '-w', 'hurrrrr', AnyImage
+end
 
-    # Test resizing
-    $imgcat --width=72 "$any_image" >  /dev/null
 
-    # Try erroneous invocations
-    ! $imgcat /dev/null 2> /dev/null
-    ! $imgcat --width=-3 "$any_image" 2> /dev/null
-    ! $imgcat -w hurrrrr "$any_image" 2> /dev/null
-}
+class InvocationError < StandardError
+  attr_reader :invocation, :expected
+  def initialize(invocation, expected=nil)
+    @invocation = invocation
+    @expected = expected
+  end
 
-# Move into the tests directory
-cd "$script_dir" || exit -1
-run_tests
-test_suite_failed=$?
-# Move back to the original directory
-cd "$original_dir" || exit -1
-return $test_suite_failed
+  def has_expected?
+    !@expected.nil?
+  end
+
+  def actual
+    invocation.actual
+  end
+end
+
+class Invocation
+  attr_reader :filename, :options, :status, :actual, :stderr
+
+  def initialize(*args)
+    @filename = args.pop
+    @options = args
+  end
+
+  def ran?
+    !@status.nil?
+  end
+
+  def failed?
+    ran? && @status != 0
+  end
+
+  def invocation
+    argv.join(' ')
+  end
+
+  def argv
+    args = options.map(&:to_s)
+    if filename.nil?
+      args
+    else
+      [*args, @filename]
+    end
+  end
+
+  def run
+    Tempfile.create('err') do |error_file|
+      Tempfile.create('out') do |output_file|
+        system(Imgcat, *argv, :out => output_file, :err => error_file)
+        @status = $? || 0
+
+        output_file.seek(0)
+        error_file.seek(0)
+        @actual = output_file.read
+        @stderr = error_file.read
+      end
+    end
+
+    raise InvocationError.new(self) if failed?
+    self
+  end
+end
+
+def imgcat(*args)
+  Invocation.new(*args).run
+end
+
+def imgcat!(*args)
+  cmd = Invocation.new(*args)
+  begin
+    cmd.run
+  rescue InvocationError
+    cmd
+  else
+    raise InvocationError.new(cmd)
+  end
+end
+
+def compare_output(*options, image, expected)
+  cmd = imgcat(*options, image)
+
+  expected_contents = File.open(expected || '/dev/null') do |file|
+    file.read
+  end
+
+  if expected_contents != cmd.actual
+    raise InvocationError.new(cmd, expected_contents)
+  end
+end
+
+def run_tests
+  begin
+    run_tests!
+  rescue InvocationError => error
+    cmd = error.invocation
+    puts "Failed: #{cmd.invocation}"
+    puts "Status: #{cmd.status}"
+    puts "Stderr: #{cmd.stderr}"
+    puts "Expected:\n#{error.expected}" if error.has_expected?
+    puts "Actual:\n#{error.actual}"
+    exit(-1)
+  else
+    puts "Tests passed!"
+  end
+end
+
+FileUtils.cd(test_dir, :verbose => true) do
+  run_tests
+end
