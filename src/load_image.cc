@@ -62,7 +62,7 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
     // TODO: colour space transformation?
 
     /* Determine the size of the image. */
-    unsigned int size = img.width() * img.height() * colour_depth;
+    int size = img.width() * img.height() * colour_depth;
     if (size < colour_depth) {
         /* The image is too small! */
         return false;
