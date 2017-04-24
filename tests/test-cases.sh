@@ -12,41 +12,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-CFLAGS ?= -Wall -Werror
-CXXFLAGS ?= -Wall -Werror
+ANY_IMAGE=1px_8_table.png
 
-# Enable optimizations in production mode.
-ifdef production
-CFLAGS += -O2
-CXXFLAGS += -O2
-else
-CFLAGS += -g
-CXXFLAGS += -O2
-endif
+#           expected output     command
+assert_eq   1px_256_table.out   imgcat -d 256 1px_256_table.png
+assert_eq   1px_8_table.out     imgcat -d 8 1px_8_table.png
 
-# Use C11 and C++11 --- workarounds for older versions of GCC.
-ifeq ($(firstword $(CC)),gcc)
-CFLAGS += -std=c1x
-else
-CFLAGS += -std=c11
-endif
-ifeq ($(firstword $(CXX)),g++)
-CXXFLAGS += -std=c++0x
-else
-CXXFLAGS += -std=c++11
-endif
+#           command that should fail
+assert_fail imgcat --width=-3 "$ANY_IMAGE"
+assert_fail imgcat -w mank3y "$ANY_IMAGE"
 
-LDLIBS = -lm
-
-BIN = imgcat
-SOURCES = imgcat load_image print_image rgbtree
-OBJS := $(addsuffix .o,$(SOURCES))
-
-
-$(BIN): $(OBJS)
-	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-
-clean:
-	$(RM) $(BIN) $(OBJS)
-
-.PHONY: clean
+#           command that should succeed
+assert_ok   imgcat --width=12 Xterm_256color_chart.png

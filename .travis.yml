@@ -1,12 +1,20 @@
-language: c
 sudo: false
+language: cpp
 
-script:
-  - make test
+script: make test
 
 compiler:
-  - gcc
   - clang
+  - gcc
 env:
   - production=true
   - production=
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.9
+      - g++-4.9
+      - realpath

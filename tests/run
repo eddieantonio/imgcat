@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # Copyright (c) 2017  Eddie Antonio Santos <easantos@ualberta.ca>
 #
@@ -14,139 +14,95 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-# Requires Ruby 2.2
+set -u
 
-require 'fileutils'
-require 'tempfile'
+# Parallel arrays of invocations (the command line), and its output.
+declare -a INVOCATIONS
+declare -a OUTPUT
+declare -a STDERR
 
-abort "Must provide imgcat executable" if ARGV.empty?
+# Array of indices to invocations, output, stderr.
+declare -a FAILURES
 
-Imgcat = File.realpath(ARGV.first)
-test_dir = File.dirname(__FILE__)
+IMGCAT="$(realpath "$1")"
 
-AnyImage = '1px_8_table.png'
+ORIGINAL_DIR="$(pwd)"
+SCRIPT_DIR="$(dirname "$0")"
 
-def run_tests!
-  # Compare the output of a few standard cases.
-  compare_output '-d', 256, '1px_256_table.png',  '1px_256_table.out'
-  compare_output '-d', 8,   '1px_8_table.png',    '1px_8_table.out'
+_assert() {
+  local output stderr bin
+  local -i status
+  bin="${1/imgcat/$IMGCAT}"
+  shift
+  output="$(mktemp)"
+  stderr="$(mktemp)"
 
-  # Test resizing
-  imgcat '--width=12', 'Xterm_256color_chart.png'
+  # || : prevents this from exiting prematurely
+  "$bin" "$@" >"$output" 2>"$stderr"
+  status=$?
+  INVOCATIONS+=("$bin $*")
+  OUTPUT+=("$(cat "$output")")
+  STDERR+=("$(cat "$stderr")")
 
-  # Try erroneous invocations
-  imgcat!
-  imgcat! '--width=-3', AnyImage
-  imgcat! '-w', 'hurrrrr', AnyImage
-end
+  unlink "$output"
+  unlink "$stderr"
 
+  return $status
+}
 
-class InvocationError < StandardError
-  attr_reader :invocation, :expected
-  def initialize(invocation, expected=nil)
-    @invocation = invocation
-    @expected = expected
-  end
+_add_failure() {
+  local -i items="${#INVOCATIONS[@]}"
+  FAILURES+=("$((items - 1))")
+}
 
-  def has_expected?
-    !@expected.nil?
-  end
+assert_ok() {
+  _assert "$@" || _add_failure
+}
 
-  def actual
-    invocation.actual
-  end
-end
+assert_fail() {
+  _assert "$@" && _add_failure
+}
 
-class Invocation
-  attr_reader :filename, :options, :status, :actual, :stderr
+assert_eq() {
+  local expected="$1"; shift;
+  _assert "$@" || {
+    _add_failure
+    return
+  }
+  local -i last
+  last=$(( ${#OUTPUT[@]} - 1))
+  diff "$expected" - <<<"${OUTPUT[$last]}" >/dev/null || _add_failure
+}
 
-  def initialize(*args)
-    @filename = args.pop
-    @options = args
-  end
+print_success() {
+  echo "$ncases tests passed"
+}
 
-  def ran?
-    !@status.nil?
-  end
+print_failures() {
+  for index in "${FAILURES[@]}"; do
+    echo "Failed: ${INVOCATIONS[$index]}"
+    echo "=== stderr ==="
+    echo "${STDERR[$index]}"
+    echo "=== output ==="
+    echo "${OUTPUT[$index]}"
+  done
 
-  def failed?
-    ran? && @status != 0
-  end
+  echo
 
-  def invocation
-    argv.join(' ')
-  end
+  echo "Failures:   $nfailures"
+  echo "Tests:      $ncases"
+}
 
-  def argv
-    args = options.map(&:to_s)
-    if filename.nil?
-      args
-    else
-      [*args, @filename]
-    end
-  end
+# Run the tests in test-cases
+cd "$SCRIPT_DIR" || exit -1
+source test-cases.sh || exit -1
+cd "$ORIGINAL_DIR" || exit -1
 
-  def run
-    Tempfile.create('err') do |error_file|
-      Tempfile.create('out') do |output_file|
-        system(Imgcat, *argv, :out => output_file, :err => error_file)
-        @status = $? || 0
-
-        output_file.seek(0)
-        error_file.seek(0)
-        @actual = output_file.read
-        @stderr = error_file.read
-      end
-    end
-
-    raise InvocationError.new(self) if failed?
-    self
-  end
-end
-
-def imgcat(*args)
-  Invocation.new(*args).run
-end
-
-def imgcat!(*args)
-  cmd = Invocation.new(*args)
-  begin
-    cmd.run
-  rescue InvocationError
-    cmd
-  else
-    raise InvocationError.new(cmd)
-  end
-end
-
-def compare_output(*options, image, expected)
-  cmd = imgcat(*options, image)
-
-  expected_contents = File.open(expected || '/dev/null') do |file|
-    file.read
-  end
-
-  if expected_contents != cmd.actual
-    raise InvocationError.new(cmd, expected_contents)
-  end
-end
-
-def run_tests
-  begin
-    run_tests!
-  rescue InvocationError => error
-    cmd = error.invocation
-    puts "Failed: #{cmd.invocation}"
-    puts "Status: #{cmd.status}"
-    puts "Stderr: #{cmd.stderr}"
-    puts "Expected:\n#{error.expected}" if error.has_expected?
-    puts "Actual:\n#{error.actual}"
-    exit(-1)
-  else
-    puts "Tests passed!"
-  end
-end
-
-FileUtils.cd(test_dir) do
-  run_tests
-end
+declare -i nfailures="${#FAILURES[@]}"
+declare -i ncases="${#INVOCATIONS[@]}"
+if ((nfailures > 0)); then
+  print_failures
+  exit -1
+else
+  print_success
+fi
