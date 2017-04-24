@@ -48,10 +48,17 @@ struct Image {
 };
 
 /**
+ * Additional options to pass when loading images.
+ */
+struct LoadOpts {
+    int max_width;
+};
+
+/**
  * Loads the image at the given filename, into the already allocated Image
  * struct.
  */
-bool load_image(const char *filename, struct Image *image);
+bool load_image(const char *filename, struct Image *image, struct LoadOpts*);
 
 /**
  * Frees memory of the loaded image.

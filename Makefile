@@ -40,4 +40,4 @@ test: $(BIN)
 clean:
 	$(MAKE) -C src/ clean
 
-.PHONY: all clean install test
+.PHONY: all $(BIN) clean install test

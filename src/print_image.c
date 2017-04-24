@@ -47,10 +47,13 @@ static const RGB_Tuple ansi_color_table[] = {
 
 bool print_image(const char *filename, int max_width, Format format) {
     struct Image image;
+    struct LoadOpts options = {
+        .max_width = max_width
+    };
     assert(format != F_UNSET);
 
     /* Load the image. */
-    bool success = load_image(filename, &image);
+    bool success = load_image(filename, &image, &options);
 
     /* Could not load image. */
     if (!success) {

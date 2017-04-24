@@ -35,7 +35,7 @@ const int colour_depth = 4;
 
 
 // TODO: Take "max width", "pixel ratio", "colour space".
-bool load_image(const char *filename, Image *image) {
+bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
     /* Zero-out the struct. */
     bzero(image, sizeof(struct Image));
 
@@ -50,6 +50,16 @@ bool load_image(const char *filename, Image *image) {
     assert(img.data() != nullptr);
     assert((img.spectrum() == 3) || (img.spectrum() == 4));
     // TODO: handle other image depths
+
+    /* Maybe resize the image. */
+    if ((options->max_width > 0) && (img.width() > options->max_width)) {
+        int new_width = options->max_width;
+        double ratio = ((double) img.height()) / img.width();
+        int new_height = ratio * (double) new_width;
+        img.resize(new_width, new_height);
+    }
+
+    // TODO: colour space transformation?
 
     /* Determine the size of the image. */
     unsigned int size = img.width() * img.height() * colour_depth;
@@ -66,9 +76,6 @@ bool load_image(const char *filename, Image *image) {
         /* Memory allocation error. */
         return false;
     }
-
-    // TODO: resize image.
-    // TODO: colour space transformation?
 
     /* Creates a 32bpp flat buffer copy of the image.
      * The data layout is optimized for linear access to entire pixels,
