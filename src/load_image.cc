@@ -23,8 +23,8 @@
 
 // CImg is a massive library that can also convert our image to L*A*B*, among
 // many other things.
-#define cimg_verbosity 0
-#define cimg_display 0
+#define cimg_verbosity  0
+#define cimg_display    0
 #include "CImg.hpp"
 
 #include "load_image.h"

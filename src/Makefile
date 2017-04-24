@@ -21,7 +21,7 @@ CFLAGS += -O2
 CXXFLAGS += -O2
 else
 CFLAGS += -g
-CXXFLAGS += -O2
+CXXFLAGS += -g
 endif
 
 # Use C11 and C++11 --- workarounds for older versions of GCC.
@@ -36,7 +36,7 @@ else
 CXXFLAGS += -std=c++11
 endif
 
-LDLIBS = -lm
+LDLIBS = -lm -lpthread
 
 BIN = imgcat
 SOURCES = imgcat load_image print_image rgbtree
