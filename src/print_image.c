@@ -136,27 +136,3 @@ static void image_iterator(struct Image *image, PixelFunc printer) {
         printf("\033[49m\n");
     }
 }
-
-
-#if 0
-static void reallocate_and_resize(Image *image, int new_width) {
-    unsigned char *original = image->buffer;
-    unsigned char *resized;
-    double ratio = ((double) image->height) / image->width;
-    int new_height = ratio * new_width;
-    int color_depth = image->depth;
-
-    size_t buffer_size = color_depth * (new_width * new_height);
-
-    resized = (unsigned char*) malloc(buffer_size);
-    stbir_resize_uint8(original, image->width, image->height, 0,
-                       resized, new_width, new_height, 0, color_depth);
-
-    /* Replace all the originals with our new, fun values. */
-    image->buffer = resized;
-    image->width = new_width;
-    image->height = new_height;
-
-    stbi_image_free(original);
-}
-#endif

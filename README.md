@@ -60,7 +60,6 @@ Acknowledgements
 
 [CImg]: https://github.com/dtschump/CImg
 [CeCILL-C]: http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt
-[stb]: https://github.com/nothings/stb
 [256svg]: https://gist.github.com/jasonm23/2868981
 
 License
