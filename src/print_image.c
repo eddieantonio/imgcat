@@ -60,6 +60,7 @@ bool print_image(const char *filename, int max_width, Format format) {
         return false;
     }
 
+    // TODO: WHAT?
     /* Maybe do a resize. */
     if ((max_width != WIDTH_UNSET) && (image.width > max_width)) {
         fprintf(stderr, "scaling not implemented");

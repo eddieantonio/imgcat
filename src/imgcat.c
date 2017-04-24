@@ -27,11 +27,11 @@
 #include <getopt.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <sysexits.h>
 
 #include "print_image.h"
 
 #define VERSION     "1.1.1"
-#define EXIT_USAGE  -1
 
 
 /* Global, bite me. */
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
         bad_usage("Failed to open image: %s", image_name);
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 
@@ -169,12 +169,11 @@ static void bad_usage(const char *msg, ...) {
     va_start(args, msg);
     vfprintf(stderr, msg, args);
     va_end(args);
-
     fprintf(stderr, "\n");
 
     usage(stderr);
 
-    exit(EXIT_USAGE);
+    exit(EX_USAGE);
 }
 
 static Format parse_format(const char *arg) {
@@ -190,11 +189,15 @@ static Format parse_format(const char *arg) {
 
 static int parse_args(int argc, char **argv) {
     int c;
+    /* Disable getopt_long from printing to stderr. */
+    extern int opterr;
+    opterr = 0;
 
     while (1) {
         c = getopt_long(argc, argv, "w:d:Rhv", long_options, NULL);
-        if (c == -1)
+        if (c == -1) {
             break;
+        }
 
         switch (c) {
             case 'w':
@@ -217,19 +220,18 @@ static int parse_args(int argc, char **argv) {
 
             case 'h':
                 usage(stdout);
-                exit(0);
+                exit(EXIT_SUCCESS);
                 break;
 
             case 'v':
                 printf("%s %s\n", program_name, VERSION);
-                exit(0);
+                exit(EXIT_SUCCESS);
                 break;
 
             /* Unknown option. */
             case '?':
             default:
-                usage(stderr);
-                exit(-1);
+                bad_usage("Unknown option: %s", argv[optind - 1]);
         }
     }
 

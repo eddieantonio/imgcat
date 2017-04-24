@@ -28,6 +28,7 @@ imgcat_tests() {
     #           command that should fail
     assert_fail imgcat --width=-3 "$ANY_IMAGE"
     assert_fail imgcat -w mank3y "$ANY_IMAGE"
+    assert_fail imgcat --fake-option
 }
 
 
@@ -118,13 +119,13 @@ print_failures() {
 }
 
 # Run the tests in test-cases
-cd "$SCRIPT_DIR" && imgcat_tests && cd "$ORIGINAL_DIR" || exit -1
+cd "$SCRIPT_DIR" && imgcat_tests && cd "$ORIGINAL_DIR" || exit
 
 declare -i nfailures="${#FAILURES[@]}"
 declare -i ncases="${#INVOCATIONS[@]}"
 if ((nfailures > 0)); then
     print_failures
-    exit -1
+    exit 1
 else
     print_success
 fi
