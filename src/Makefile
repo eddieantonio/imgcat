@@ -38,6 +38,12 @@ endif
 
 LDLIBS = -lm -lpthread
 
+# Add conditional support for libpng.
+ifneq ($(shell pkg-config --modversion libpng),)
+CIMG_CXXFLAGS += $(shell pkg-config --cflags libpng) -Dcimg_use_png
+LDLIBS += $(shell pkg-config --libs libpng)
+endif
+
 BIN = imgcat
 SOURCES = imgcat load_image print_image rgbtree
 OBJS := $(addsuffix .o,$(SOURCES))
@@ -45,6 +51,11 @@ OBJS := $(addsuffix .o,$(SOURCES))
 
 $(BIN): $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+
+load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS)
+load_image.o: load_image.cc load_image.h CImg.hpp
+
 
 clean:
 	$(RM) $(BIN) $(OBJS)
