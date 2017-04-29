@@ -14,7 +14,7 @@
 
 CFLAGS ?= -Wall -Werror
 CXXFLAGS ?= -Wall -Werror
-LDLIBS = -ljpeg -lm -pthread
+LDLIBS = -ljpeg -lm -lpthread
 CIMG_CXXFLAGS = -Dcimg_use_jpeg
 
 # Enable optimizations in production mode.
