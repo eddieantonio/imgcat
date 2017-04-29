@@ -14,7 +14,7 @@
 
 CFLAGS ?= -Wall -Werror
 CXXFLAGS ?= -Wall -Werror
-LDLIBS = -lm -ljpeg
+LDLIBS = -ljpeg -lm -pthread
 CIMG_CXXFLAGS = -Dcimg_use_jpeg
 
 # Enable optimizations in production mode.
@@ -34,7 +34,6 @@ CFLAGS += -std=c11
 endif
 ifeq ($(firstword $(CXX)),g++)
 CXXFLAGS += -std=c++0x
-LDFLAGS += -lpthread
 else
 CXXFLAGS += -std=c++11
 endif
