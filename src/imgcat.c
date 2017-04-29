@@ -31,16 +31,18 @@
 
 #include "print_image.h"
 
-#define VERSION     "1.1.1"
+#define VERSION "2.0.0-prerelease"
 
 
-/* Global, bite me. */
+/**
+ * Global containing all relevant command line options.
+ */
 static struct {
     Format format;
     bool should_resize;
     int width;
 } options = {
-    .format = F_UNSET,          /* Default: 256 colors. */
+    .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
     .width = WIDTH_UNSET,
 };
@@ -110,6 +112,7 @@ int main(int argc, char **argv) {
         color_format = terminal.optimum_format;
     }
 
+    /* TODO: multiple images OR stdin. */
     image_name = argv[image_name_index];
 
     status = print_image(image_name, width, color_format);
@@ -176,15 +179,20 @@ static void bad_usage(const char *msg, ...) {
     exit(EX_USAGE);
 }
 
+
 static Format parse_format(const char *arg) {
-    if (strncmp(arg, "256", 4) == 0) {
+#   define argeq(b)     (strncmp(arg, (b), (sizeof(b))) == 0)
+
+    if (argeq("256")) {
         return F_256_COLOR;
-    } else if ((strncmp(arg, "8", 2) == 0) || (strncmp(arg, "ansi", 5) == 0)) {
+    } else if (argeq("8") || argeq("ansi")) {
         return F_8_COLOR;
-    } else if (strncmp(arg, "rgb", 4) == 0) {
-        return F_UNSET;
+    } else if (argeq("iterm2")) {
+        return F_ITERM2;
     }
+
     return F_UNSET;
+#   undef argeq
 }
 
 static int parse_args(int argc, char **argv) {

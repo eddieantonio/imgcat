@@ -66,10 +66,12 @@ Acknowledgements
 
  - Uses the [CImg], distributed under the [CeCILL-C] license.
  - 256 Color chart and data from Jason Milkin's [public domain chart][256svg].
+ - [NibbleAndAHalf]
 
 [CImg]: https://github.com/dtschump/CImg
 [CeCILL-C]: http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt
 [256svg]: https://gist.github.com/jasonm23/2868981
+[NibbleAndAHalf]: https://github.com/superwills/NibbleAndAHalf
 
 License
 -------

@@ -34,6 +34,8 @@ typedef void (*PixelFunc)(Pixel *pixel);
 static void image_iterator(struct Image *image, PixelFunc printer);
 static void printer_8_color(Pixel *pixel);
 static void printer_256_color(Pixel *pixel);
+static bool print_iterate(const char *filename, int max_width, Format format);
+static bool iterm2_passthrough(const char *filename);
 
 /* The 8 color table. It has 8 colors. */
 static const RGB_Tuple ansi_color_table[] = {
@@ -44,27 +46,31 @@ static const RGB_Tuple ansi_color_table[] = {
 };
 
 
-
+/**
+ * Print using iTerm2's inline image feature.
+ *
+ */
 bool print_image(const char *filename, int max_width, Format format) {
+    if (format == F_ITERM2) {
+        return iterm2_passthrough(filename);
+    } else {
+        return print_iterate(filename, max_width, format);
+    }
+}
+
+static bool print_iterate(const char *filename, int max_width, Format format) {
     struct Image image;
     struct LoadOpts options = {
         .max_width = max_width
     };
     assert(format != F_UNSET);
 
-    /* Load the image. */
+    /* Load the image, and potentially rescale it. */
     bool success = load_image(filename, &image, &options);
 
     /* Could not load image. */
     if (!success) {
         return false;
-    }
-
-    // TODO: WHAT?
-    /* Maybe do a resize. */
-    if ((max_width != WIDTH_UNSET) && (image.width > max_width)) {
-        fprintf(stderr, "scaling not implemented");
-        exit(-1);
     }
 
     PixelFunc printer = NULL;
@@ -88,6 +94,32 @@ bool print_image(const char *filename, int max_width, Format format) {
     return true;
 }
 
+/** Print start of xterm escape squence. */
+static void print_osc() {
+    printf("\033]");
+}
+
+/** Print end of xterm escape sequence.  */
+static void print_st() {
+    printf("\007");
+}
+
+/**
+ * Pass-through to iTerm2's inline image feature.
+ *
+ * https://iterm2.com/documentation-images.html
+ *
+ * Based on iTerm's included script, **also** called imgcat:
+ * https://raw.githubusercontent.com/gnachman/iTerm2/master/tests/imgcat
+ */
+static bool iterm2_passthrough(const char *filename) {
+    /* TODO: support max width. */
+    print_osc();
+    printf("1337;File=inline=1;width=auto:");
+    // TODO: base64
+    print_st();
+    return false;
+}
 
 /**
  * Gets a colour match from the global RGB tree.
@@ -118,7 +150,6 @@ static void printer_8_color(Pixel *pixel) {
      * corresponding ANSI escape sequence. */
     printf("\033[4%1dm ", best_index);
 }
-
 
 static void image_iterator(struct Image *image, PixelFunc printer) {
     int x, y;
