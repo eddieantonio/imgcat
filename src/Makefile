@@ -14,6 +14,8 @@
 
 CFLAGS ?= -Wall -Werror
 CXXFLAGS ?= -Wall -Werror
+LDLIBS = -lm -ljpeg
+CIMG_CXXFLAGS = -Dcimg_use_jpeg
 
 # Enable optimizations in production mode.
 ifdef production
@@ -32,11 +34,11 @@ CFLAGS += -std=c11
 endif
 ifeq ($(firstword $(CXX)),g++)
 CXXFLAGS += -std=c++0x
+LDFLAGS += -lpthread
 else
 CXXFLAGS += -std=c++11
 endif
 
-LDLIBS = -lm -lpthread
 
 # Add conditional support for libpng.
 ifneq ($(shell pkg-config --modversion libpng),)
@@ -53,6 +55,7 @@ $(BIN): $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 
+# Add any special flags for CImg
 load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS)
 load_image.o: load_image.cc load_image.h CImg.hpp
 

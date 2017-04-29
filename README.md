@@ -32,6 +32,15 @@ See the [manpage](./docs/imgcat.1.md) for more invocations.
 Build
 -----
 
+### Requirements
+
+(You most likely already have both of these).
+
+ - libjpeg
+ - GNU make
+
+Then:
+
 ```sh
 make production=true
 ```
