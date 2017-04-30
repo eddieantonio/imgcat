@@ -36,6 +36,9 @@ static void printer_8_color(Pixel *pixel);
 static void printer_256_color(Pixel *pixel);
 static bool print_iterate(const char *filename, int max_width, Format format);
 static bool iterm2_passthrough(const char *filename);
+static bool print_base64(const char *filename);
+static void print_osc();
+static void print_st();
 
 /* The 8 color table. It has 8 colors. */
 static const RGB_Tuple ansi_color_table[] = {
@@ -46,10 +49,6 @@ static const RGB_Tuple ansi_color_table[] = {
 };
 
 
-/**
- * Print using iTerm2's inline image feature.
- *
- */
 bool print_image(const char *filename, int max_width, Format format) {
     if (format == F_ITERM2) {
         return iterm2_passthrough(filename);
@@ -94,16 +93,6 @@ static bool print_iterate(const char *filename, int max_width, Format format) {
     return true;
 }
 
-/** Print start of xterm escape squence. */
-static void print_osc() {
-    printf("\033]");
-}
-
-/** Print end of xterm escape sequence.  */
-static void print_st() {
-    printf("\007");
-}
-
 /**
  * Pass-through to iTerm2's inline image feature.
  *
@@ -115,10 +104,32 @@ static void print_st() {
 static bool iterm2_passthrough(const char *filename) {
     /* TODO: support max width. */
     print_osc();
-    printf("1337;File=inline=1;width=auto:");
-    // TODO: base64
+    printf("1337;File=inline=1:");
+    print_base64(filename);
     print_st();
-    return false;
+    return true;
+}
+
+/**
+ * Iterates through the image, x, then y,
+ */
+static void image_iterator(struct Image *image, PixelFunc printer) {
+    int x, y;
+    const int width = image->width, height = image->height;
+    int color_depth = image->depth;
+    unsigned char *buffer = image->buffer;
+
+    for (y = 0; y < height; y++) {
+        /* Print each pixel. */
+        for (x = 0; x < width; x++) {
+            /* Get the position of the pixel in the image. */
+            uint8_t *pixel = buffer + color_depth * (x + width * y);
+            /* Delegate to the provided printer. */
+            printer(pixel);
+        }
+        /* Finish the line. */
+        printf("\033[49m\n");
+    }
 }
 
 /**
@@ -151,20 +162,87 @@ static void printer_8_color(Pixel *pixel) {
     printf("\033[4%1dm ", best_index);
 }
 
-static void image_iterator(struct Image *image, PixelFunc printer) {
-    int x, y;
-    const int width = image->width, height = image->height;
-    int color_depth = image->depth;
-    unsigned char *buffer = image->buffer;
+static void print_base64_char(uint8_t c) {
+    static const char b64_encode_table[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "0123456789+/";
+    uint8_t index = c & 0b00111111;
+    putchar(b64_encode_table[index]);
+}
 
-    for (y = 0; y < height; y++) {
-        /* Print each pixel. */
-        for (x = 0; x < width; x++) {
-            /* Get the position of the pixel in the image... */
-            uint8_t *pixel = buffer + color_depth * (x + width * y);
-            printer(pixel);
-        }
-        /* Finish the line. */
-        printf("\033[49m\n");
+#include <debugbreak.h>
+
+/**
+ */
+static bool print_base64(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+
+    if (file == NULL) {
+        return false;
     }
+    int c;
+    uint8_t leftover_bits = 0;
+
+    enum { byte_0, byte_1, byte_2, max_states } state = byte_0;
+
+    /* Convert each character into base64. */
+    while ((c = fgetc(file)) != EOF) {
+        uint8_t lower, upper;
+        switch (state) {
+            case byte_0:
+                print_base64_char(c >> 2);
+                break;
+            case byte_1:
+                lower = (leftover_bits & 0b11) << 4;
+                upper = (c & 0b11110000) >> 4;
+                print_base64_char(upper | lower);
+                break;
+            case byte_2:
+                upper = (leftover_bits & 0b00001111) << 2;
+                lower = (c & 0b11000000) >> 6;
+                print_base64_char(upper | lower);
+                print_base64_char(c & 0b00111111);
+                break;
+            default:
+                assert(false);
+        }
+        /* Save the leftover bits. */
+        leftover_bits = c;
+        /* Move to the next state. */
+        state = (state + 1) % max_states;
+    }
+
+    /* Pad the end, if needed. */
+    uint8_t upper = 0;
+    switch (state) {
+        case byte_0:
+            /* No padding necessary: last character ended on byte boundary. */
+            break;
+        case byte_1:
+            upper = (c & 0b11110000) >> 4;
+            print_base64_char(upper);
+            printf("==");
+            break;
+        case byte_2:
+            upper = (leftover_bits & 0b00001111) << 2;
+            print_base64_char(upper);
+            putchar(' ');
+            break;
+        default:
+            assert(false);
+    }
+
+    fclose(file);
+    return true;
+}
+
+/** Print start of xterm escape squence. */
+static void print_osc() {
+    printf("\033]");
+}
+
+/** Print end of xterm escape sequence.  */
+static void print_st() {
+    printf("\007\n");
 }
