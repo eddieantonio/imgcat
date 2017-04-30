@@ -171,9 +171,8 @@ static void print_base64_char(uint8_t c) {
     putchar(b64_encode_table[index]);
 }
 
-#include <debugbreak.h>
-
 /**
+ * Open the file and prints its contents in "canonical" base64.
  */
 static bool print_base64(const char *filename) {
     FILE *file = fopen(filename, "rb");
