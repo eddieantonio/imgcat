@@ -1,4 +1,4 @@
-# Copyright (c) 2017, Eddie Antonio Santos <easantos@ualberta.ca>
+# Copyright (c) 2017 Eddie Antonio Santos <easantos@ualberta.ca>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -12,10 +12,14 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+# Define magic make variables (see: make --print-database)
 CFLAGS ?= -Wall -Werror
 CXXFLAGS ?= -Wall -Werror
+# the -M* options produce .d files in addition to .o files,
+# to keep track of header dependencies (see: $(DEPS)).
+OUTPUT_OPTION = -MMD -MP -o $@
+# Always link with libjpeg; CImg requires pthread, for some reason
 LDLIBS = -ljpeg -lm -lpthread
-CIMG_CXXFLAGS = -Dcimg_use_jpeg
 
 # Enable optimizations in production mode.
 ifdef production
@@ -45,18 +49,21 @@ CIMG_CXXFLAGS += $(shell pkg-config --cflags libpng) -Dcimg_use_png
 LDLIBS += $(shell pkg-config --libs libpng)
 endif
 
+
 BIN = imgcat
 SOURCES = imgcat load_image print_image rgbtree
+DEPS = $(addsuffix .d,$(SOURCES))
 OBJS := $(addsuffix .o,$(SOURCES))
 
 
 $(BIN): $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
+-include $(DEPS)
 
 # Add any special flags for CImg
-load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS)
-load_image.o: load_image.cc load_image.h CImg.hpp
+load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS) -Dcimg_use_jpeg
+load_image.o:
 
 
 clean:
