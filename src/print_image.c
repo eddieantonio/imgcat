@@ -15,8 +15,8 @@
  */
 
 /**
- * TODO: better documentation:
- * Prints images and stuff. Yeah.
+ * print_image() prints an image to the screen, in whatever format is most
+ * suitable.
  */
 
 #include <assert.h>
@@ -31,14 +31,14 @@
 typedef const unsigned char Pixel;
 typedef void (*PixelFunc)(Pixel *pixel);
 
-static void image_iterator(struct Image *image, PixelFunc printer);
-static void printer_8_color(Pixel *pixel);
-static void printer_256_color(Pixel *pixel);
-static bool print_iterate(const char *filename, int max_width, Format format);
 static bool iterm2_passthrough(const char *filename);
 static bool print_base64(const char *filename);
+static bool print_iterate(const char *filename, int max_width, Format format);
+static void image_iterator(struct Image *image, PixelFunc printer);
 static void print_osc();
 static void print_st();
+static void printer_256_color(Pixel *pixel);
+static void printer_8_color(Pixel *pixel);
 
 /* The 8 color table. It has 8 colors. */
 static const RGB_Tuple ansi_color_table[] = {
@@ -173,6 +173,7 @@ static void print_base64_char(uint8_t c) {
 
 /**
  * Open the file and prints its contents in "canonical" base64.
+ * See Table 1 in RFC4648: https://tools.ietf.org/html/rfc4648#page-6
  */
 static bool print_base64(const char *filename) {
     FILE *file = fopen(filename, "rb");
@@ -236,12 +237,17 @@ static bool print_base64(const char *filename) {
     return true;
 }
 
-/** Print start of xterm escape squence. */
+/**
+ * Print the start of an operating system command (OSC).
+ */
 static void print_osc() {
     printf("\033]");
 }
 
-/** Print end of xterm escape sequence.  */
+/**
+ * Print the string terminator (ST), which in iTerm's case is simply the ASCII
+ * bell.
+ */
 static void print_st() {
     printf("\007\n");
 }
