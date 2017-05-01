@@ -29,6 +29,8 @@
 #include <unistd.h>
 #include <sysexits.h>
 
+#include <term.h>
+
 #include "print_image.h"
 
 #define VERSION "2.0.0-prerelease"
@@ -130,16 +132,25 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
+/**
+ * Get the color capability from the terminfo database.
+ */
+static int get_terminal_colours() {
+    char tbuf[1024];
+    if (tgetent(tbuf, getenv("TERM")) != 1) {
+        return -1;
+    }
+
+    return tigetnum("colors");
+}
 
 /**
  * Determines the terminal's capabilities:
  * its optimum colour depth and dimensions.
  */
 static void determine_terminal_capabilities() {
-    FILE *tput;
     int stdout_fd = fileno(stdout);
     struct winsize ws;
-    int colors;
 
     /* If stdout is NOT a terminal (it's redirected to a file perhaps),
      * just bail. */
@@ -154,26 +165,20 @@ static void determine_terminal_capabilities() {
     terminal.width = ws.ws_col;
     terminal.height = ws.ws_row;
 
-    /* Figure out the terminal's colour capabilities. I don't really know of
-     * a cleaner way to do this other than invoking tput :/ */
-    assert((tput = popen("tput colors", "r")) != NULL);
-    assert(fscanf(tput, "%d", &colors) == 1);
-    assert(pclose(tput) != -1);
-    terminal.colors = colors;
+    terminal.colors = get_terminal_colours();
 
     /* ITERM_SESSION_ID is exported in iTerm2 sessions. */
     if (getenv("ITERM_SESSION_ID") != NULL) {
         terminal.optimum_format = F_ITERM2;
-    /* Otherwise, determine the capability from tput's reported colours. */
-    } else if (colors >= 256) {
+    /* Otherwise, determine the capability from the reported colours. */
+    } else if (terminal.colors >= 256) {
         terminal.optimum_format = F_256_COLOR;
-    } else if (colors >= 8) {
+    } else if (terminal.colors >= 8) {
         terminal.optimum_format = F_8_COLOR;
     } else {
         assert(0 && "Don't know what color depth is best for you...");
     }
 }
-
 
 static void usage(FILE *dest) {
     fprintf(dest, "usage:\timgcat [--width WIDTH|--no-rescale]"

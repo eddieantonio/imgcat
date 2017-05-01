@@ -19,7 +19,7 @@ CXXFLAGS ?= -Wall -Werror
 # to keep track of header dependencies (see: $(DEPS)).
 OUTPUT_OPTION = -MMD -MP -o $@
 # Always link with libjpeg; CImg requires pthread, for some reason
-LDLIBS = -ljpeg -lm -lpthread
+LDLIBS = -ljpeg -lm -ltermcap -lpthread
 
 # Enable optimizations in production mode.
 ifdef production
