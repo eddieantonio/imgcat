@@ -33,7 +33,7 @@
 
 #include "print_image.h"
 
-#define VERSION "2.0.0-prerelease"
+#define VERSION "2.0.0"
 
 
 /**
