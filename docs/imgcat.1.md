@@ -10,9 +10,9 @@
 
 # DESCRIPTION
 
-**imgcat** prints images to your terminal screen. Yes, indeed it does.
+**imgcat** prints images to your terminal screen.
 
-By default, the image is printed at the full width and colour depth
+By default, the image is printed at the full width and color depth
 detected for your terminal. These can be overridden using **-w** to
 adjust the maximum width or **-R** to prevent resizing, even if the
 image is too big to fit in the terminal; and **-d** to explicitly the
@@ -22,11 +22,10 @@ __Make sure your `TERM` environment variable is set to a terminfo with
 the full capabilities of you terminal!__ See **Troubleshooting** if
 you're having a problem with this.
 
-If the output stream is not a terminal (that is, output is redirected to
+If the output is not a terminal (that is, output is redirected to
 a file, or piped into another program), then the image is **not**
-resized to the size of the terminal. It does, however, uses the color
-depth of terminal set in the `TERM` environment variable. Overriding
-both width and color depth still work.
+resized and the color depth is set to 8 colors. Overriding both width
+and color depth still work.
 
 ## Options
 
@@ -37,12 +36,23 @@ both width and color depth still work.
 
 **-d** _MODE_, **--depth**=_MODE_
   ~ Explicitly set the output color depth to one of **ansi**, **8**
-  (alias of **ansi**), or **256**. If not provided, the output color
-  depth will be inferred with `tput colors`.
+  (alias of **ansi**), **256**, or **iterm**. If not provided, the
+  output color depth will be inferred with `tput colors`.
 
 **-R**, **--no-resize**
   ~ Does not resize the image to fit the terminal's width. Overrides
   **--width**.
+
+## iTerm2 3.0
+
+**imgcat** supports iTerm2's full-color inline images (use **-d iterm**
+to explicitly enable this). However, iTerm2 is bundled with a script
+that is also called **imgcat**! To use this program in preference to the
+script bundled with iTerm2, edit your shell's configuration file such
+that, after the line that sources iTerm2's shell integration and
+utilities, you unalias its built-in script:
+
+    unalias imgcat
 
 ## Troubleshooting
 

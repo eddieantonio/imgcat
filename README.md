@@ -5,7 +5,7 @@ imgcat
 
 It's like `cat` but for images.
 
-![$imgcat cat.jpg](./docs/imgcat.png)
+<img src="./docs/imgcat.png" alt="$imgcat cat.jpg" style="max-height: 512px">
 
 
 Install
@@ -18,7 +18,11 @@ brew tap eddieantonio/eddieantonio
 brew install imgcat
 ```
 
+**Important**: [See below](#note-on-iterm2-s-shell-integration) if
+you're using iTerm2 3.0 with shell integration installed.
+
 For other platforms, see [Build](#build).
+
 
 Usage
 -----
@@ -29,6 +33,26 @@ imgcat some_image.jpg
 
 See the [manpage](./docs/imgcat.1.md) for more invocations.
 
+Note on iTerm2's shell integration
+----------------------------------
+
+If you install iTerm2's [shell integration], chances are you also
+installed its additional scripts, including one called `imgcat`.
+**iTerm's `imgcat` overrides this program by default**. To see if you
+this is happening to you, use `which` to determine where your shell is
+finding imgcat:
+
+    which imgcat
+
+If it says: `imgcat: aliased to /Users/yourusername/.iterm2/imgcat`,
+then you must edit your shell startup file and add `unalias imgcat`
+**after** the line that sources iTerm2's script. For example:
+
+    test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+    unalias imgcat
+
+[shell integration]: https://www.iterm2.com/documentation-shell-integration.html
+
 Build
 -----
 
@@ -36,8 +60,8 @@ Build
 
 (You most likely already have both of these).
 
- - libjpeg
  - GNU make
+ - libjpeg
 
 Then:
 
@@ -66,12 +90,10 @@ Acknowledgements
 
  - Uses the [CImg], distributed under the [CeCILL-C] license.
  - 256 Color chart and data from Jason Milkin's [public domain chart][256svg].
- - [NibbleAndAHalf]
 
 [CImg]: https://github.com/dtschump/CImg
 [CeCILL-C]: http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt
 [256svg]: https://gist.github.com/jasonm23/2868981
-[NibbleAndAHalf]: https://github.com/superwills/NibbleAndAHalf
 
 License
 -------
