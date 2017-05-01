@@ -38,15 +38,15 @@ Note on iTerm2's shell integration
 
 If you install iTerm2's [shell integration], chances are you also
 installed its additional scripts, including one called `imgcat`.
-**iTerm's `imgcat` overrides this program by default**. To see if you
-this is happening to you, use `which` to determine where your shell is
+**iTerm's `imgcat` overrides this program by default**. To see if this
+is happening to you, use `which` to determine where your shell is
 finding imgcat:
 
     which imgcat
 
-If it says: `imgcat: aliased to /Users/yourusername/.iterm2/imgcat`,
-then you must edit your shell startup file and add `unalias imgcat`
-**after** the line that sources iTerm2's script. For example:
+If it says `imgcat: aliased to /Users/yourusername/.iterm2/imgcat`, then
+you must edit your shell startup file and add `unalias imgcat` **after**
+the line that sources iTerm2's script. For example:
 
     test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
     unalias imgcat

@@ -14,9 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* glibc checks for this to adhere to an early 90s standard... */
-#define _POSIX_C_SOURCE 2
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -194,8 +191,17 @@ static void determine_terminal_capabilities() {
 }
 
 static void usage(FILE *dest) {
-    fprintf(dest, "usage:\timgcat [--width WIDTH|--no-rescale]"
-                                " [--depth (8|256)] IMAGE\n");
+    const int field_width = strlen(program_name);
+    printf("%d\n", field_width);
+    fprintf(dest, "Usage:\n");
+    fprintf(dest,
+            "\t%s"  " [--width=<characters>|--no-rescale]\n"
+            "\t%*c" " [--depth=(8|256|iterm2)] IMAGE\n",
+            program_name, field_width, ' ');
+    fprintf(dest, "\t"
+            "%s --version\n", program_name);
+    fprintf(dest, "\t"
+            "%s --help\n", program_name);
 }
 
 static void bad_usage(const char *msg, ...) {
