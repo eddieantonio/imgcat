@@ -192,7 +192,6 @@ static void determine_terminal_capabilities() {
 
 static void usage(FILE *dest) {
     const int field_width = strlen(program_name);
-    printf("%d\n", field_width);
     fprintf(dest, "Usage:\n");
     fprintf(dest,
             "\t%s"  " [--width=<characters>|--no-rescale]\n"
