@@ -19,8 +19,8 @@ PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man/man1
 
-# Delegate all of these to scons.
-all: $(BIN)
+
+all: $(BIN) $(MAN)
 
 $(BIN):
 	$(MAKE) -C $(dir $@)
@@ -40,4 +40,4 @@ test: $(BIN)
 clean:
 	$(MAKE) -C src/ clean
 
-.PHONY: all $(BIN) clean install test
+.PHONY: all $(BIN) clean install $(MAN) test

@@ -4,7 +4,7 @@ MAN = imgcat.1
 ifeq ($(shell command -v pandoc),)
 PANDOC = true
 else
-PANDOC = pandoc 
+PANDOC = pandoc
 endif
 
 PANDOCFLAGS =
