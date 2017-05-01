@@ -66,12 +66,25 @@ static struct {
 
 /* Long options */
 static struct option long_options[] = {
-     { "no-resize",     no_argument,            NULL,           'R' },
-     { "width",         required_argument,      NULL,           'w' },
-     { "depth",         required_argument,      NULL,           'd' },
-     { "help",          no_argument,            NULL,           'h' },
-     { "version",       no_argument,            NULL,           'v' },
-     { NULL,            0,                      NULL,           0 }
+    /* Options affecting output colour depth. */
+    { "depth",          required_argument,      NULL,           'd' },
+
+    /* Options affecting resizing. */
+    { "no-resize",      no_argument,            NULL,           'R' },
+    { "width",          required_argument,      NULL,           'w' },
+
+
+    /* Abbreviated options. */
+    { "8",      no_argument, (int*) &options.format,    F_8_COLOR   },
+    { "ansi",   no_argument, (int*) &options.format,    F_8_COLOR   },
+    { "256",    no_argument, (int*) &options.format,    F_256_COLOR },
+    { "iterm2", no_argument, (int*) &options.format,    F_ITERM2    },
+
+    /* Common options. */
+    { "help",           no_argument,            NULL,           'h' },
+    { "version",        no_argument,            NULL,           'v' },
+
+    { NULL,             0,                      NULL,           0   }
 };
 
 
@@ -255,6 +268,10 @@ static int parse_args(int argc, char **argv) {
             case 'v':
                 printf("%s %s\n", program_name, VERSION);
                 exit(EXIT_SUCCESS);
+                break;
+
+            case 0:
+                /* Set an abbreviated option like --8, --ansi, --256. */
                 break;
 
             /* Unknown option. */

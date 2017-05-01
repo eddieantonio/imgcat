@@ -29,11 +29,6 @@ and color depth still work.
 
 ## Options
 
-**-w** _COLS_, **--width**=_COLS_
-  ~ Shrink the image to _COLS_ characters wide (maintaining aspect ratio).
-  Does nothing if **--no-resize** is provided, or if the image is
-  already as small as the provided width.
-
 **-d** _MODE_, **--depth**=_MODE_
   ~ Explicitly set the output color depth to one of **ansi**, **8**
   (alias of **ansi**), **256**, or **iterm**. If not provided, the
@@ -42,6 +37,22 @@ and color depth still work.
 **-R**, **--no-resize**
   ~ Does not resize the image to fit the terminal's width. Overrides
   **--width**.
+
+**-w** _COLS_, **--width**=_COLS_
+  ~ Shrink the image to _COLS_ characters wide (maintaining aspect ratio).
+  Does nothing if **--no-resize** is provided, or if the image is
+  already as small as the provided width.
+
+**--8**, **--ansi**
+  ~ Set the output colour depth to 8. Same as **--depth=8**.
+
+**--256**
+  ~ Set the output colour depth to 256. Same as **--depth=256**.
+
+**--iterm2**
+  ~ Set the output to iTerm inline image mode. Same as
+  **--depth=iterm2**.
+
 
 ## iTerm2 3.0
 
