@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/* Feature-test macro for fileno(3). */
+#define _XOPEN_SOURCE
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
