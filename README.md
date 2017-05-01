@@ -5,7 +5,7 @@ imgcat
 
 It's like `cat` but for images.
 
-<img src="./docs/imgcat.png" alt="$imgcat cat.jpg" style="max-height: 512px">
+<img src="./docs/imgcat.png" alt="$imgcat cat.jpg" height=620>
 
 
 Install
@@ -18,7 +18,7 @@ brew tap eddieantonio/eddieantonio
 brew install imgcat
 ```
 
-**Important**: [See below](#note-on-iterm2-s-shell-integration) if
+**Important**: [See below](#note-on-iterm2s-shell-integration) if
 you're using iTerm2 3.0 with shell integration installed.
 
 For other platforms, see [Build](#build).
