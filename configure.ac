@@ -19,7 +19,6 @@
 
 # Creates a ./configure file; also creates Makefile and src/config.h
 
-AC_PREREQ([2.69])
 AC_INIT([imgcat], [2.0.0], [http://github.com/eddieantonio/imgcat/issues])
 AC_CONFIG_SRCDIR([src/CImg.hpp])
 AC_CONFIG_HEADERS([src/config.h])
