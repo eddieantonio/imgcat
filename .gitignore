@@ -8,14 +8,6 @@ imgcat
 
 # Object files
 *.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
 
 # Precompiled Headers
 *.gch
@@ -38,7 +30,6 @@ imgcat
 *.app
 *.i*86
 *.x86_64
-*.hex
 
 # Debug files
 *.dSYM/
@@ -46,13 +37,8 @@ imgcat
 *.idb
 *.pdb
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
 # End of https://www.gitignore.io/api/c
+/autom4te.cache
+/config.log
+/config.status
+/Makefile
