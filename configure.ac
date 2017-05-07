@@ -30,7 +30,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stdint.h stdlib.h string.h sys/ioctl.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([limits.h stdint.h stdlib.h string.h sys/ioctl.h sys/time.h unistd.h term.h sysexits.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_TYPE_SIZE_T

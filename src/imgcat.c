@@ -31,8 +31,7 @@
 #include <term.h>
 
 #include "print_image.h"
-
-#define VERSION "2.0.0"
+#include "config.h"
 
 
 /**
@@ -273,7 +272,7 @@ static int parse_args(int argc, char **argv) {
                 break;
 
             case 'v':
-                printf("%s %s\n", program_name, VERSION);
+                printf("%s %s\n", program_name, PACKAGE_VERSION);
                 exit(EXIT_SUCCESS);
                 break;
 
