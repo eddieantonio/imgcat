@@ -1,6 +1,9 @@
 sudo: false
 language: cpp
 
+before_script: autoconf
+script: ./configure && make && make test
+
 compiler:
   - clang
   - gcc
