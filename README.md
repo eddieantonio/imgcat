@@ -61,12 +61,14 @@ Build
 (You most likely already have both of these).
 
  - GNU make
- - libjpeg
+ - GNU autotools
 
 Then:
 
 ```sh
-make production=true
+autoconf
+./configure
+make
 ```
 
 Install
