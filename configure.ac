@@ -17,11 +17,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Creates a ./configure file; also creates Makefile and src/config.h
+# Creates a ./configure file; also creates config.mk and src/config.h
 
 AC_INIT([imgcat], [2.0.0], [http://github.com/eddieantonio/imgcat/issues])
 AC_CONFIG_SRCDIR([src/imgcat.c])
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([src/config.h src/cimg_config.h])
 AC_CONFIG_FILES([config.mk])
 
 # Checks for compilers and pandoc
@@ -32,8 +32,12 @@ AC_PROG_CXX
 AC_CHECK_PROGS([PANDOC], [pandoc], [true])
 
 # Checks for libraries.
-# libjpeg
-# libpng
+# Try to link with libpng:
+AC_SEARCH_LIBS([png_create_info_struct], [png],
+               [AC_DEFINE(cimg_use_png)])
+# Try to link with libjpeg:
+AC_SEARCH_LIBS([jpeg_set_defaults], [jpeg],
+               [AC_DEFINE(cimg_use_jpeg)])
 
 # Checks for header files.
 AC_CHECK_HEADERS([sys/ioctl.h sys/time.h term.h sysexits.h])

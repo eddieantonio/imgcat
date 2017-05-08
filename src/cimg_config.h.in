@@ -1,0 +1,12 @@
+#ifndef CIMG_CONFIG_H
+#define CIMG_CONFIG_H
+/* IMPORTANT! Include this BEFORE CImg.hpp. */
+
+#define cimg_verbosity  0
+#define cimg_display    0
+
+// These are set by autoconf.
+#undef  cimg_use_jpeg
+#undef  cimg_use_png
+// Note: on GCC, it requires pthreads... :/
+#endif /* CIMG_CONFIG_H */

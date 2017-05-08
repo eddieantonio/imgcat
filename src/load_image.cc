@@ -21,11 +21,7 @@
 #include <cstring>
 #include <iostream>
 
-// CImg is a massive library that can also convert our image to L*A*B*, among
-// many other things.
-// Note: on GCC, it requires pthreads... :/
-#define cimg_verbosity  0
-#define cimg_display    0
+#include "cimg_config.h"
 #include "CImg.hpp"
 
 #include "load_image.h"

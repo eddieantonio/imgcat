@@ -22,8 +22,7 @@ CC = @CC@
 CXX = @CXX@
 PANDOC = @PANDOC@
 LD = @CXX@
-# TODO: libs
-LDLIBS = 
+LIBS = @LIBS@
 
 # Define magic make variables (see: make --print-database)
 CFLAGS ?= -Wall -Werror

@@ -36,13 +36,6 @@ else
 CXXFLAGS += -std=c++11
 endif
 
-# TODO: AC_CHECK_HEADERS/AC_CHECK_LIBS
-# Add conditional support for libpng.
-ifneq ($(shell pkg-config --modversion libpng),)
-CIMG_CXXFLAGS += $(shell pkg-config --cflags libpng) -Dcimg_use_png
-LDLIBS += $(shell pkg-config --libs libpng)
-endif
-
 # Enable optimizations in production mode.
 # TODO: do something about this...?
 ifdef production
@@ -53,14 +46,9 @@ CFLAGS += -g
 CXXFLAGS += -g
 endif
 
-# Add any special flags for CImg
-# TODO: Create a cimg_config.h
-#load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS) -Dcimg_use_jpeg
-#load_image.o:
-
-# Always link with libjpeg; CImg requires pthread, for some reason
+# CImg requires pthread, for some reason
 # TODO: augment this from autoconf
-LDLIBS = -ljpeg -lm -ltermcap -lpthread
+LDLIBS = $(LIBS) -ltermcap -lm -lpthread
 
 # Get the source files.
 SOURCES = $(wildcard src/*.c) $(wildcard src/*.cc)
