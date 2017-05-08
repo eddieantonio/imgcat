@@ -13,10 +13,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # Outputs
-BIN = src/imgcat
+BIN = imgcat
 MAN = docs/imgcat.1
-
-#VPATH = $(dir $(BIN)):$(dir $(MAN))
 
 # Install stuff
 PREFIX = /usr/local

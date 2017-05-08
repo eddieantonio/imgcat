@@ -20,22 +20,23 @@
 # Creates a ./configure file; also creates Makefile and src/config.h
 
 AC_INIT([imgcat], [2.0.0], [http://github.com/eddieantonio/imgcat/issues])
-AC_CONFIG_SRCDIR([src/CImg.hpp])
+AC_CONFIG_SRCDIR([src/imgcat.c])
 AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_FILES([Makefile])
 
-# Checks for compilers.
-AC_LANG(C++)
+# Checks for compilers and pandoc
+AC_LANG([C++])
 AC_PROG_CC
 AC_PROG_CXX
+# Checks for pandoc -- optional
+AC_CHECK_PROGS([PANDOC], [pandoc], [true])
+
+# Checks for libraries.
+# libjpeg
+# libpng
 
 # Checks for header files.
 AC_CHECK_HEADERS([sys/ioctl.h sys/time.h term.h sysexits.h])
 
-# TODO: Checks for libraries.
-# libjpeg
-# libpng
-
-# Checks for pandoc --- optional
-AC_CHECK_PROGS([PANDOC], [pandoc], [true])
-
-AC_OUTPUT(Makefile)
+# Final output
+AC_OUTPUT
