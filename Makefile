@@ -23,31 +23,7 @@ MANDIR = $(PREFIX)/share/man/man1
 
 include config.mk
 
-# TODO: use autoconf to figure this out.
-# Use C11 and C++11 --- workarounds for older versions of GCC.
-ifeq ($(firstword $(CC)),gcc)
-CFLAGS += -std=c1x
-else
-CFLAGS += -std=c11
-endif
-ifeq ($(firstword $(CXX)),g++)
-CXXFLAGS += -std=c++0x
-else
-CXXFLAGS += -std=c++11
-endif
-
-# Enable optimizations in production mode.
-# TODO: do something about this...?
-ifdef production
-CFLAGS += -O2
-CXXFLAGS += -O2
-else
-CFLAGS += -g
-CXXFLAGS += -g
-endif
-
 # CImg requires pthread, for some reason
-# TODO: augment this from autoconf
 LDLIBS = $(LIBS) -ltermcap -lm -lpthread
 
 # Get the source files.
@@ -70,7 +46,6 @@ clean:
 	$(RM) $(BIN) $(OBJS)
 
 -include $(DEPS)
-
 
 $(BIN): $(OBJS)
 	$(LD) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@

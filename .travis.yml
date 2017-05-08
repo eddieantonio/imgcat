@@ -7,9 +7,6 @@ script: ./configure && make && make test
 compiler:
   - clang
   - gcc
-env:
-  - production=true
-  - production=
 
 addons:
   apt:

@@ -26,7 +26,9 @@ AC_CONFIG_FILES([config.mk])
 
 # Checks for compilers and pandoc
 AC_LANG([C++])
+CFLAGS=-std=c11
 AC_PROG_CC
+CXXFLAGS=-std=c++11
 AC_PROG_CXX
 # Checks for pandoc -- optional
 AC_CHECK_PROGS([PANDOC], [pandoc], [true])
