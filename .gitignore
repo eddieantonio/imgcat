@@ -42,4 +42,4 @@ imgcat
 /config.log
 /config.status
 /configure
-/Makefile
+config.mk

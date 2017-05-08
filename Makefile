@@ -21,18 +21,7 @@ PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man/man1
 
-# Programs
-CC = @CC@
-CXX = @CXX@
-LD = @CXX@
-
-# Define magic make variables (see: make --print-database)
-CFLAGS ?= -Wall -Werror
-CXXFLAGS ?= -Wall -Werror
-# the -M* options produce .d files in addition to .o files,
-# to keep track of header dependencies (see: $(DEPS)).
-# TODO: use configure's --enable-tracking or whatever
-OUTPUT_OPTION = -MMD -MP -o $@
+include config.mk
 
 # TODO: use autoconf to figure this out.
 # Use C11 and C++11 --- workarounds for older versions of GCC.
@@ -54,14 +43,6 @@ CIMG_CXXFLAGS += $(shell pkg-config --cflags libpng) -Dcimg_use_png
 LDLIBS += $(shell pkg-config --libs libpng)
 endif
 
-# Always link with libjpeg; CImg requires pthread, for some reason
-# TODO: augment this from autoconf
-LDLIBS = -ljpeg -lm -ltermcap -lpthread
-
-SOURCES = $(wildcard src/*.c) $(wildcard src/*.cc)
-OBJS = $(addsuffix .o,$(basename $(SOURCES)))
-DEPS = $(OBJS:.o=.d)
-
 # Enable optimizations in production mode.
 # TODO: do something about this...?
 ifdef production
@@ -72,8 +53,20 @@ CFLAGS += -g
 CXXFLAGS += -g
 endif
 
-PANDOC = @PANDOC@
-PANDOCFLAGS =
+# Add any special flags for CImg
+# TODO: Create a cimg_config.h
+#load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS) -Dcimg_use_jpeg
+#load_image.o:
+
+# Always link with libjpeg; CImg requires pthread, for some reason
+# TODO: augment this from autoconf
+LDLIBS = -ljpeg -lm -ltermcap -lpthread
+
+# Get the source files.
+SOURCES = $(wildcard src/*.c) $(wildcard src/*.cc)
+OBJS = $(addsuffix .o,$(basename $(SOURCES)))
+DEPS = $(OBJS:.o=.d)
+
 
 all: $(BIN) $(MAN)
 
@@ -85,14 +78,10 @@ install: $(BIN) $(MAN)
 test: $(BIN)
 	tests/run $<
 
--include $(DEPS)
-
 clean:
 	$(RM) $(BIN) $(OBJS)
 
-# Add any special flags for CImg
-#load_image.o: CXXFLAGS += $(CIMG_CXXFLAGS) -Dcimg_use_jpeg
-#load_image.o:
+-include $(DEPS)
 
 
 $(BIN): $(OBJS)
