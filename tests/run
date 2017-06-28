@@ -26,8 +26,9 @@ imgcat_tests() {
     assert_eq   1px_8_table.out     imgcat -d 8 1px_8_table.png
     assert_eq   1px_8_table.out     imgcat -d ansi 1px_8_table.png
     assert_eq   1px_256_iterm2.out  imgcat -d iterm2 1px_256_table.png
+    assert_eq   1px_grey_table.out  imgcat -d 256 1px_grey_table.png
 
-    # Test non-standard options
+    # Test option aliases
     assert_eq   1px_256_table.out   imgcat --256 1px_256_table.png
     assert_eq   1px_8_table.out     imgcat --ansi 1px_8_table.png
     assert_eq   1px_8_table.out     imgcat --8 1px_8_table.png

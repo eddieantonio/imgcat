@@ -28,8 +28,7 @@
 /**
  * red/L*, blue/a*, green/b*, and alpha.
  */
-const int colour_depth = 4;
-
+const int COLOUR_DEPTH = 4;
 
 // TODO: Take "max width", "pixel ratio", "colour space".
 bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
@@ -45,8 +44,6 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
     }
 
     assert(img.data() != nullptr);
-    assert((img.spectrum() == 3) || (img.spectrum() == 4));
-    // TODO: handle other image depths
 
     /* Maybe resize the image. */
     if ((options->max_width > 0) && (img.width() > options->max_width)) {
@@ -58,9 +55,9 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
 
     // TODO: colour space transformation?
 
-    /* Determine the size of the image. */
-    int size = img.width() * img.height() * colour_depth;
-    if (size < colour_depth) {
+    /* Determine the number of bytes of the image. */
+    int size = img.width() * img.height() * COLOUR_DEPTH;
+    if (size < COLOUR_DEPTH) {
         /* The image is too small! */
         return false;
     }
@@ -82,21 +79,33 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
      * when you hop around memory for each datum).
      */
     uint8_t *pos = buffer;
+    const auto greyscale = img.spectrum() < 3;
     for (int y = 0; y < img.height(); y++) {
         for (int x = 0; x < img.width(); x++) {
-            /* Copy each channel independently. */
-            *pos++ = img(x, y, 0, 0);
-            *pos++ = img(x, y, 0, 1);
-            *pos++ = img(x, y, 0, 2);
+            if (greyscale) {
+                /* Copy the grey channel three times. */
+                *pos++ = img(x, y);
+                *pos++ = img(x, y);
+                *pos++ = img(x, y);
+            } else {
+                /* Copy each channel independently. */
+                *pos++ = img(x, y, 0, 0);
+                *pos++ = img(x, y, 0, 1);
+                *pos++ = img(x, y, 0, 2);
+            }
+            /* The alpha channel is currently ignored,
+             * so let every pixel be opaque. */
+            /* TODO: handle transparency? */
             *pos++ = 0xFF;
         }
     }
+    /* Assert we've processed the entire image. */
     assert(pos == buffer + size);
 
     image->width = img.width();
     image->height = img.height();
     image->buffer = buffer;
-    image->depth = colour_depth;
+    image->depth = COLOUR_DEPTH;
     return true;
 }
 
