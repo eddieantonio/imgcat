@@ -58,6 +58,8 @@ Build
 
 ### Requirements
 
+- libncurses5-dev (if `make` complains about missing `term.h`, then you don't have it)
+
 (You most likely already have both of these).
 
  - GNU make
