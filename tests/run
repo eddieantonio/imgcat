@@ -49,7 +49,7 @@ declare -a OUTPUT
 declare -a STDERR
 
 # Array of indices to invocations, output, stderr.
-declare -a FAILURES
+declare -a FAILURES=()
 
 ORIGINAL_DIR="$(pwd)"
 SCRIPT_DIR="$(dirname "$0")"
