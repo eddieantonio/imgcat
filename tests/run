@@ -34,14 +34,14 @@ imgcat_tests() {
     assert_eq   1px_8_table.out     imgcat --8 1px_8_table.png
     assert_eq   1px_256_iterm2.out  imgcat --iterm2 1px_256_table.png
 
-    #           command that should fail
+    # Test invocations that should fail
+    assert_fail imgcat
     assert_fail imgcat --width=-3 "$ANY_IMAGE"
     assert_fail imgcat -w mank3y "$ANY_IMAGE"
     assert_fail imgcat --fake-option
 
     # Test that we can pipe in images and have them render
     assert_eq   1px_256_table.out   pipe 1px_256_table.png "$IMGCAT" --256
-    # TODO: write no args test
 }
 
 
