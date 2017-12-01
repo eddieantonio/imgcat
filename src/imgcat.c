@@ -65,8 +65,8 @@ static struct {
 };
 
 /* Global temporary filename for dumping stdin into.  */
-static const ssize_t MAX_TEMPFILE_NAME = 128;
-static char tempfile_name[MAX_TEMPFILE_NAME + 1] = "";
+#define MAX_TEMPFILE_NAME 128
+static char tempfile_name[MAX_TEMPFILE_NAME + 1];
 
 /* Long options */
 static struct option long_options[] = {
