@@ -6,11 +6,15 @@
 
 # SYNOPSIS
 
-| **imgcat** \[**-w** _COLS_|**-R**] \[**-d** _MODE_] \[_options_] _image.ext_
+| **imgcat**  **\[options]** _image_
+| **imgcat**  **\[options]** < _image_
 
 # DESCRIPTION
 
-**imgcat** prints images to your terminal screen.
+**imgcat** prints an image to your terminal screen.
+
+The image can either be provided as a command line argument, or can be
+piped into `stdin`.
 
 By default, the image is printed at the full width and color depth
 detected for your terminal. These can be overridden using **-w** to

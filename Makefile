@@ -51,7 +51,7 @@ $(BIN): $(OBJS)
 	$(LD) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.1: %.1.md
-	$(PANDOC) --standalone --to=man $(PANDOCFLAGS) \
+	$(PANDOC) --standalone --from=markdown-smart --to=man $(PANDOCFLAGS) \
 		-Vdate='$(shell date +'%B %d, %Y')' $< -o $@
 
 .PHONY: all clean install test
