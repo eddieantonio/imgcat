@@ -22,10 +22,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <err.h>
 
 #include <getopt.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sysexits.h>
 
 #include <term.h>
@@ -62,6 +64,10 @@ static struct {
     .optimum_format = F_8_COLOR
 };
 
+/* Global temporary filename for dumping stdin into.  */
+static const ssize_t MAX_TEMPFILE_NAME = 128;
+static char tempfile_name[MAX_TEMPFILE_NAME + 1] = "";
+
 /* Long options */
 static struct option long_options[] = {
     /* Options affecting output colour depth. */
@@ -86,11 +92,13 @@ static struct option long_options[] = {
 };
 
 
-/* Returns index of first positional argument. */
+/** Returns the filename of the image to open. */
 static const char* parse_args(int argc, char **argv);
 static void bad_usage(const char *msg, ...) __attribute__((noreturn));
+static void fatal_error(int code, const char *msg, ...) __attribute__((noreturn));
 static void determine_terminal_capabilities();
 static void usage(FILE *dest);
+static const char *dump_stdin_into_tempfile();
 
 /* Set first thing in main(). */
 static char const* program_name;
@@ -187,21 +195,29 @@ static void determine_terminal_capabilities() {
     }
 }
 
-enum {
-    MAX_TEMPFILE_NAME = 128
-};
-static char tempfile_name[MAX_TEMPFILE_NAME + 1];
+/**
+ * Removes the temporary file. Intended to be the atexit() callback.
+ */
+static void unlink_tempfile(void) {
+    remove(tempfile_name);
+}
 
 /**
  * This is necessary because CImg likes to close and reopen the file it's
- * reading, which discards header data when reading from stdin.
+ * reading, which discards header data when reading from /dev/stdin.
  */
 static const char *dump_stdin_into_tempfile() {
     int byte;
+    /* Set up the mutable buffer for mktemp() to do its magic. */
     strncpy(tempfile_name, "/tmp/image.XXXXXXXX", MAX_TEMPFILE_NAME);
-    /* TODO: null check. */
-    mktemp(tempfile_name);
+    if (mktemp(tempfile_name) == NULL) {
+        fatal_error(EX_TEMPFAIL, "could not create temporary file");
+    }
+
     FILE *output = fopen(tempfile_name, "wb");
+    if (output == NULL) {
+        fatal_error(EX_IOERR, "could not open temporary file: %s", strerror(errno));
+    }
 
     /* TODO: do something better than a byte-for-byte file transfer. */
     while ((byte = getchar()) != EOF) {
@@ -209,7 +225,9 @@ static const char *dump_stdin_into_tempfile() {
     }
     fclose(output);
 
-    /* TODO: setup atexit hook to unlink the file? */
+    /* Remove the file at ordinary exit. */
+    atexit(unlink_tempfile);
+
     return tempfile_name;
 }
 
@@ -241,6 +259,18 @@ static void bad_usage(const char *msg, ...) {
     exit(EX_USAGE);
 }
 
+static void fatal_error(int code, const char *msg, ...) {
+    va_list args;
+
+    fprintf(stderr, "%s: ", program_name);
+
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+
+    exit(code);
+}
 
 static Format parse_format(const char *arg) {
 #   define argeq(b)     (strncmp(arg, (b), (sizeof(b))) == 0)
