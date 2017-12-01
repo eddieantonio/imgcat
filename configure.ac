@@ -19,7 +19,7 @@
 
 # Creates a ./configure file; also creates config.mk and src/config.h
 
-AC_INIT([imgcat], [2.0.1], [http://github.com/eddieantonio/imgcat/issues])
+AC_INIT([imgcat], [2.1.0], [http://github.com/eddieantonio/imgcat/issues])
 AC_CONFIG_SRCDIR([src/imgcat.c])
 AC_CONFIG_HEADERS([src/config.h src/cimg_config.h])
 AC_CONFIG_FILES([config.mk])
