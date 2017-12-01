@@ -112,10 +112,16 @@ int main(int argc, char **argv) {
     program_name = argv[0];
 
     image_name = parse_args(argc, argv);
-
-    /* No image file specified. */
-    /* TODO: no image specified on stdin file line. */
-    /* bad_usage("Must specify an image file."); */
+    if (image_name == NULL) {
+        if (isatty(fileno(stdin))) {
+            /* No image is specified on the command line, and there's nothing
+             * redirected to stdin. */
+            bad_usage("Must specify an image file.");
+        } else {
+            /* There's an image redirected to stdin. */
+            image_name = dump_stdin_into_tempfile();
+        }
+    }
 
     determine_terminal_capabilities();
 
@@ -342,7 +348,7 @@ static const char* parse_args(int argc, char **argv) {
     if (argc == optind) {
         /* This means getopt() has exhausted all of argv and has not found a
          * valid image name argument. */
-        return dump_stdin_into_tempfile();
+        return NULL;
     } else {
         return argv[optind];
     }
