@@ -38,7 +38,7 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
     cimg_library::CImg<unsigned char> img;
     try {
         img.assign(filename);
-    } catch (cimg_library::CImgException& ex) {
+    } catch (cimg_library::CImgIOException& ex) {
         // Could not load the image for some reason.
         return false;
     }
