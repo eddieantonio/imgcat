@@ -87,7 +87,7 @@ static struct option long_options[] = {
 
 
 /* Returns index of first positional argument. */
-static int parse_args(int argc, char **argv);
+static const char* parse_args(int argc, char **argv);
 static void bad_usage(const char *msg, ...) __attribute__((noreturn));
 static void determine_terminal_capabilities();
 static void usage(FILE *dest);
@@ -97,18 +97,17 @@ static char const* program_name;
 
 
 int main(int argc, char **argv) {
-    int width, image_name_index;
+    int width;
     bool status;
     const char *image_name;
     Format color_format = F_UNSET;
     program_name = argv[0];
 
-    image_name_index = parse_args(argc, argv);
+    image_name = parse_args(argc, argv);
 
     /* No image file specified. */
-    if (image_name_index == argc) {
-        bad_usage("Must specify an image file.");
-    }
+    /* TODO: no image specified on stdin file line. */
+    /* bad_usage("Must specify an image file."); */
 
     determine_terminal_capabilities();
 
@@ -130,9 +129,6 @@ int main(int argc, char **argv) {
     } else {
         color_format = terminal.optimum_format;
     }
-
-    /* TODO: multiple images OR stdin. */
-    image_name = argv[image_name_index];
 
     status = print_image(image_name, width, color_format);
 
@@ -191,6 +187,32 @@ static void determine_terminal_capabilities() {
     }
 }
 
+enum {
+    MAX_TEMPFILE_NAME = 128
+};
+static char tempfile_name[MAX_TEMPFILE_NAME + 1];
+
+/**
+ * This is necessary because CImg likes to close and reopen the file it's
+ * reading, which discards header data when reading from stdin.
+ */
+static const char *dump_stdin_into_tempfile() {
+    int byte;
+    strncpy(tempfile_name, "/tmp/image.XXXXXXXX", MAX_TEMPFILE_NAME);
+    /* TODO: null check. */
+    mktemp(tempfile_name);
+    FILE *output = fopen(tempfile_name, "wb");
+
+    /* TODO: do something better than a byte-for-byte file transfer. */
+    while ((byte = getchar()) != EOF) {
+        fputc(byte, output);
+    }
+    fclose(output);
+
+    /* TODO: setup atexit hook to unlink the file? */
+    return tempfile_name;
+}
+
 static void usage(FILE *dest) {
     const int field_width = strlen(program_name);
     fprintf(dest, "Usage:\n");
@@ -235,7 +257,7 @@ static Format parse_format(const char *arg) {
 #   undef argeq
 }
 
-static int parse_args(int argc, char **argv) {
+static const char* parse_args(int argc, char **argv) {
     int c;
     /* Disable getopt_long from printing to stderr. */
     extern int opterr;
@@ -287,5 +309,11 @@ static int parse_args(int argc, char **argv) {
         }
     }
 
-    return optind;
+    if (argc == optind) {
+        /* This means getopt() has exhausted all of argv and has not found a
+         * valid image name argument. */
+        return dump_stdin_into_tempfile();
+    } else {
+        return argv[optind];
+    }
 }
