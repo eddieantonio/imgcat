@@ -38,6 +38,10 @@ imgcat_tests() {
     assert_fail imgcat --width=-3 "$ANY_IMAGE"
     assert_fail imgcat -w mank3y "$ANY_IMAGE"
     assert_fail imgcat --fake-option
+
+    # Test that we can pipe in images and have them render
+    assert_eq   1px_256_table.out   pipe 1px_256_table.png "$IMGCAT" --256
+    # TODO: write no args test
 }
 
 
@@ -110,6 +114,14 @@ _add_failure() {
     local -i items="${#INVOCATIONS[@]}"
     FAILURES+=("$((items - 1))")
 }
+
+# Can't specify command line redirection in assert commands,
+# so use this to do it for use.
+pipe() {
+    local filename="$1"; shift;
+    <"$filename" "$@"
+}
+
 
 print_success() {
     echo "${ANSI_GRN}$ncases tests passed${ANSI_RST}"
