@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* Feature-test macro for fileno(3). */
-#define _XOPEN_SOURCE
+/* Feature-test macro for fileno(3), fdopen(3), and mkstemp(3). */
+#define _XOPEN_SOURCE 500
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -214,15 +214,18 @@ static void unlink_tempfile(void) {
  */
 static const char *dump_stdin_into_tempfile() {
     int byte;
-    /* Set up the mutable buffer for mktemp() to do its magic. */
+    /* Set up the mutable buffer for mkstemp() to do its magic. */
     strncpy(tempfile_name, "/tmp/image.XXXXXXXX", MAX_TEMPFILE_NAME);
-    if (mktemp(tempfile_name) == NULL) {
-        fatal_error(EX_TEMPFAIL, "could not create temporary file");
+    int output_fd = mkstemp(tempfile_name);
+    if (output_fd == -1) {
+        fatal_error(EX_TEMPFAIL, "could not create temporary file: %s",
+                    strerror(errno));
     }
 
-    FILE *output = fopen(tempfile_name, "wb");
+    FILE *output = fdopen(output_fd, "wb");
     if (output == NULL) {
-        fatal_error(EX_IOERR, "could not open temporary file: %s", strerror(errno));
+        fatal_error(EX_IOERR, "could not open temporary file: %s",
+                    strerror(errno));
     }
 
     /* TODO: do something better than a byte-for-byte file transfer. */
