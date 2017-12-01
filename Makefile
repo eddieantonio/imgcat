@@ -54,4 +54,11 @@ $(BIN): $(OBJS)
 	$(PANDOC) --standalone --from=markdown-smart --to=man $(PANDOCFLAGS) \
 		-Vdate='$(shell date +'%B %d, %Y')' $< -o $@
 
+# This is a bit uncouth, but Make can do all that autoconf stuff for us.
+config.mk: configure config.mk.in
+	./$<
+
+configure: configure.ac
+	autoconf
+
 .PHONY: all clean install test
