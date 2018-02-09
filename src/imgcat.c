@@ -43,6 +43,7 @@ static struct {
     Format format;
     bool should_resize;
     int width;
+    /* TODO: height. */
 } options = {
     .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
@@ -144,7 +145,13 @@ int main(int argc, char **argv) {
         color_format = terminal.optimum_format;
     }
 
-    status = print_image(image_name, width, color_format);
+    PrintRequest request = (PrintRequest) {
+        .filename = image_name,
+        .max_width = width,
+        .max_height = DIMENSION_UNSET,
+        .format = color_format
+    };
+    status = print_image(&request);
 
     if (!status) {
         bad_usage("Failed to open image: %s", image_name);

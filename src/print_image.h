@@ -22,15 +22,27 @@
 
 #include <stdbool.h>
 
-/* The width has been left unspecified. */
-#define WIDTH_UNSET     -1
+/* The dimension has been left unspecified. */
+#define DIMENSION_UNSET 0
+#define WIDTH_UNSET     (DIMENSION_UNSET)
+#define HEIGHT_UNSET    (DIMENSION_UNSET)
 
 /* The output color depth/format. */
 typedef enum {
     F_8_COLOR, F_256_COLOR, F_ITERM2, F_UNSET
 } Format;
 
+/**
+ * Specifies all the parameters needed to print an image.
+ */
+typedef struct {
+    const char *filename;
+    int max_width;
+    int max_height;
+    Format format;
+} PrintRequest;
+
 /* Prints the image. Returns true when successful. */
-bool print_image(const char *filename, int max_width, Format format);
+bool print_image(PrintRequest *request);
 
 #endif /* PRINT_IMAGE_H */

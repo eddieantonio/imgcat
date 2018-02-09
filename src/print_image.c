@@ -49,11 +49,11 @@ static const RGB_Tuple ansi_color_table[] = {
 };
 
 
-bool print_image(const char *filename, int max_width, Format format) {
-    if (format == F_ITERM2) {
-        return iterm2_passthrough(filename);
+bool print_image(PrintRequest *request) {
+    if (request->format == F_ITERM2) {
+        return iterm2_passthrough(request->filename);
     } else {
-        return print_iterate(filename, max_width, format);
+        return print_iterate(request->filename, request->max_width, request->format);
     }
 }
 
