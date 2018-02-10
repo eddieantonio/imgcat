@@ -31,7 +31,7 @@
 typedef const unsigned char Pixel;
 typedef void (*PixelFunc)(Pixel *pixel);
 
-static bool iterm2_passthrough(const char *filename);
+static bool iterm2_passthrough(PrintRequest *request);
 static bool print_base64(const char *filename);
 static bool print_iterate(const char *filename, int max_width, Format format);
 static void image_iterator(struct Image *image, PixelFunc printer);
@@ -51,11 +51,12 @@ static const RGB_Tuple ansi_color_table[] = {
 
 bool print_image(PrintRequest *request) {
     if (request->format == F_ITERM2) {
-        return iterm2_passthrough(request->filename);
+        return iterm2_passthrough(request);
     } else {
         return print_iterate(request->filename, request->max_width, request->format);
     }
 }
+
 
 static bool print_iterate(const char *filename, int max_width, Format format) {
     struct Image image;
@@ -101,11 +102,11 @@ static bool print_iterate(const char *filename, int max_width, Format format) {
  * Based on iTerm's included script, **also** called imgcat:
  * https://raw.githubusercontent.com/gnachman/iTerm2/master/tests/imgcat
  */
-static bool iterm2_passthrough(const char *filename) {
+static bool iterm2_passthrough(PrintRequest *request) {
     /* TODO: support max width. */
     print_osc();
     printf("1337;File=inline=1:");
-    print_base64(filename);
+    print_base64(request->filename);
     print_st();
     return true;
 }
