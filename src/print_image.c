@@ -53,6 +53,7 @@ bool print_image(PrintRequest *request) {
     if (request->format == F_ITERM2) {
         return iterm2_passthrough(request);
     } else {
+        /* Delegate to the "pixel iterator" approach. */
         return print_iterate(request->filename, request->max_width, request->format);
     }
 }
@@ -103,10 +104,17 @@ static bool print_iterate(const char *filename, int max_width, Format format) {
  * https://raw.githubusercontent.com/gnachman/iTerm2/master/tests/imgcat
  */
 static bool iterm2_passthrough(PrintRequest *request) {
-    /* TODO: support max width. */
     print_osc();
-    printf("1337;File=inline=1:");
+    printf("1337;File=inline=1");
+
+    if (request->max_width > 0) {
+        /* TODO: bounds checking? */
+        printf(";width=%d", request->max_width);
+    }
+
+    printf(":");
     print_base64(request->filename);
+
     print_st();
     return true;
 }
