@@ -19,20 +19,20 @@ set -u
 ################################# Test Cases #################################
 imgcat_tests() {
     #           command that should succeed
-    assert_ok   imgcat --width=12 Xterm_256color_chart.png
+    assert_ok   imgcat --width=12 img/1px_256.jpg
 
-    #           expected output     command
-    assert_eq   1px_256_table.out   imgcat -d 256 1px_256_table.png
-    assert_eq   1px_8_table.out     imgcat -d 8 1px_8_table.png
-    assert_eq   1px_8_table.out     imgcat -d ansi 1px_8_table.png
-    assert_eq   1px_256_iterm2.out  imgcat -d iterm2 1px_256_table.png
-    assert_eq   1px_grey_table.out  imgcat -d 256 1px_grey_table.png
+    #           expected output         command
+    assert_eq   out/1px_256/256.bin     imgcat -d 256    img/1px_256.png
+    assert_eq   out/1px_8/8.bin         imgcat -d 8      img/1px_8.png
+    assert_eq   out/1px_8/8.bin         imgcat -d ansi   img/1px_8.png
+    assert_eq   out/1px_256/iterm2.bin  imgcat -d iterm2 img/1px_256.png
+    assert_eq   out/1px_grey/256.bin    imgcat -d 256    img/1px_grey.png
 
     # Test option aliases
-    assert_eq   1px_256_table.out   imgcat --256 1px_256_table.png
-    assert_eq   1px_8_table.out     imgcat --ansi 1px_8_table.png
-    assert_eq   1px_8_table.out     imgcat --8 1px_8_table.png
-    assert_eq   1px_256_iterm2.out  imgcat --iterm2 1px_256_table.png
+    assert_eq   out/1px_256/256.bin     imgcat --256     img/1px_256.png
+    assert_eq   out/1px_8/8.bin         imgcat --ansi    img/1px_8.png
+    assert_eq   out/1px_8/8.bin         imgcat --8       img/1px_8.png
+    assert_eq   out/1px_256/iterm2.bin  imgcat --iterm2  img/1px_256.png
 
     # Test invocations that should fail
     assert_fail imgcat
@@ -41,10 +41,12 @@ imgcat_tests() {
     assert_fail imgcat --fake-option
 
     # Test that we can pipe in images and have them render
-    assert_eq   1px_256_table.out   pipe 1px_256_table.png "$IMGCAT" --256
+    assert_eq   out/1px_256/256.bin \
+        pipe img/1px_256.png "$IMGCAT" --256
 
     # Test adjusting the width of iTerm2 output
-    assert_eq   1px_256_iterm2_80xN.out  imgcat --iterm2 --width 80 1px_256_table.png
+    assert_eq   out/1px_256/iterm2.80xN.bin \
+        imgcat --iterm2 --width 80 img/1px_256.png
 }
 
 
