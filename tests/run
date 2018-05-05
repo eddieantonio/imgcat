@@ -47,6 +47,10 @@ imgcat_tests() {
     # Test adjusting the width of iTerm2 output
     assert_eq   out/1px_256/iterm2.80xN.bin \
         imgcat --iterm2 --width 80 img/1px_256.png
+
+    # Test adjusting height
+    assert_eq   out/1x512px_magenta.png \
+        imgcat --256 --height 24 img/1x512px_magenta.png
 }
 
 
