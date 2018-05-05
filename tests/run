@@ -42,6 +42,9 @@ imgcat_tests() {
 
     # Test that we can pipe in images and have them render
     assert_eq   1px_256_table.out   pipe 1px_256_table.png "$IMGCAT" --256
+
+    # Test adjusting the width of iTerm2 output
+    assert_eq   1px_256_iterm2_80xN.out  imgcat --iterm2 --width 80 1px_256_table.png
 }
 
 
