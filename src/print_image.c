@@ -231,12 +231,12 @@ static bool print_base64(const char *filename) {
         case byte_1:
             upper = (c & 0b11110000) >> 4;
             print_base64_char(upper);
-            printf("==");
+            printf("==");  /* padding */
             break;
         case byte_2:
             upper = (leftover_bits & 0b00001111) << 2;
             print_base64_char(upper);
-            putchar(' ');
+            printf("=");  /* padding */
             break;
         default:
             assert(false);
