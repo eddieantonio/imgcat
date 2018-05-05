@@ -56,6 +56,14 @@ imgcat_tests() {
         imgcat --256 --height 24 img/1x512px_magenta.png
     assert_eq   out/1x512px_magenta.png/iterm2.1x24.bin \
         imgcat --iterm2 --height 24 img/1x512px_magenta.png
+
+    # Test that --no-resize overrides width AND height
+    assert_eq   out/1px_8/8.bin \
+        imgcat -d 8 -R -w 128        img/1px_8.png
+    assert_eq   out/1px_8/8.bin \
+        imgcat -d 8 -R        -r 128 img/1px_8.png
+    assert_eq   out/1px_8/8.bin \
+        imgcat -d 8 -R -w 128 -r 128 img/1px_8.png
 }
 
 
