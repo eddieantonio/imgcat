@@ -30,7 +30,13 @@
  */
 const int COLOUR_DEPTH = 4;
 
+namespace {
+void maybe_resize(cimg_library::CImg<unsigned char>&, const LoadOpts&);
+}
+
+
 // TODO: Take "max width", "pixel ratio", "colour space".
+// TODO: colour space transformation?
 bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
     /* Zero-out the struct. */
     bzero(image, sizeof(struct Image));
@@ -45,15 +51,8 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
 
     assert(img.data() != nullptr);
 
-    /* Maybe resize the image. */
-    if ((options->max_width > 0) && (img.width() > options->max_width)) {
-        int new_width = options->max_width;
-        double ratio = ((double) img.height()) / img.width();
-        int new_height = ratio * (double) new_width;
-        img.resize(new_width, new_height);
-    }
-
-    // TODO: colour space transformation?
+    /* The image may be resized smaller. */
+    maybe_resize(img, *options);
 
     /* Determine the number of bytes of the image. */
     int size = img.width() * img.height() * COLOUR_DEPTH;
@@ -115,4 +114,16 @@ void unload_image(Image *image) {
     image->buffer = nullptr;
     image->width = 0;
     image->height = 0;
+}
+
+namespace {
+void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& options) {
+    /* TODO: factor the width/height stuff better... */
+    if ((options.max_width > 0) && (img.width() > options.max_width)) {
+        int new_width = options.max_width;
+        double ratio = ((double) img.height()) / img.width();
+        int new_height = ratio * (double) new_width;
+        img.resize(new_width, new_height);
+    }
+}
 }

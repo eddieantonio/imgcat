@@ -52,6 +52,7 @@ struct Image {
  */
 struct LoadOpts {
     int max_width;
+    int desired_height;
 };
 
 /**
