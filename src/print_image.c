@@ -115,6 +115,9 @@ static bool iterm2_passthrough(PrintRequest *request) {
         /* TODO: bounds checking? */
         printf(";width=%d", request->max_width);
     }
+    if (request->max_height > 0) {
+        printf(";height=%d", request->max_height);
+    }
 
     printf(":");
     print_base64(request->filename);
