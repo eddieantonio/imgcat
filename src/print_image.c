@@ -33,7 +33,7 @@ typedef void (*PixelFunc)(Pixel *pixel);
 
 static bool iterm2_passthrough(PrintRequest *request);
 static bool print_base64(const char *filename);
-static bool print_iterate(const char *filename, int max_width, Format format);
+static bool print_iterate(PrintRequest *request);
 static void image_iterator(struct Image *image, PixelFunc printer);
 static void print_osc();
 static void print_st();
@@ -54,12 +54,16 @@ bool print_image(PrintRequest *request) {
         return iterm2_passthrough(request);
     } else {
         /* Delegate to the "pixel iterator" approach. */
-        return print_iterate(request->filename, request->max_width, request->format);
+        return print_iterate(request);
     }
 }
 
 
-static bool print_iterate(const char *filename, int max_width, Format format) {
+static bool print_iterate(PrintRequest *request) {
+    const char *filename = request->filename;
+    int max_width = request->max_width;
+    Format format = request->format;
+
     struct Image image;
     struct LoadOpts options = {
         .max_width = max_width
