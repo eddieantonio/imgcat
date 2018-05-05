@@ -20,7 +20,9 @@ By default, the image is printed at the full width and color depth
 detected for your terminal. These can be overridden using **-w** to
 adjust the maximum width or **-R** to prevent resizing, even if the
 image is too big to fit in the terminal; and **-d** to explicitly the
-set color depth.
+set color depth. You may also use **-r** to adjust the height ("r" for
+"number of rows"). If only one of **-w** or **-r** is provided, the
+image will be scaled without affecting the aspect ratio, if possible.
 
 __Make sure your `TERM` environment variable is set to a terminfo with
 the full capabilities of you terminal!__ See **Troubleshooting** if
@@ -28,8 +30,8 @@ you're having a problem with this.
 
 If the output is not a terminal (that is, output is redirected to
 a file, or piped into another program), then the image is **not**
-resized and the color depth is set to 8 colors. Overriding both width
-and color depth still work.
+resized and the color depth is set to 8 colors. Overriding both width,
+height, and color depth still work.
 
 ## Options
 
@@ -38,14 +40,26 @@ and color depth still work.
   (alias of **ansi**), **256**, or **iterm**. If not provided, the
   output color depth will be inferred with `tput colors`.
 
+**-h**, **--help**
+  ~ Show common options and quit.
+
+**-r** _ROWS_, **--height**=_ROWS_
+  ~ Resizes the image to _ROWS_ characters high.
+  Does nothing if **--no-resize** is provided. Maintains the original image's
+  aspect ratio if **--width** is NOT provided.
+
 **-R**, **--no-resize**
   ~ Does not resize the image to fit the terminal's width. Overrides
-  **--width**.
+  both **--width** and **--height**.
+
+**-v**, **--version**
+  ~ Show version and quit.
 
 **-w** _COLS_, **--width**=_COLS_
-  ~ Shrink the image to _COLS_ characters wide (maintaining aspect ratio).
+  ~ Shrink the image to _COLS_ characters wide.
   Does nothing if **--no-resize** is provided, or if the image is
-  already as small as the provided width.
+  already as small as the provided width. Maintains the original image's
+  aspect ratio if **--height** is NOT provided.
 
 **--8**, **--ansi**
   ~ Set the output colour depth to 8. Same as **--depth=8**.
