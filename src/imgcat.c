@@ -145,6 +145,12 @@ int main(int argc, char **argv) {
         color_format = terminal.optimum_format;
     }
 
+    /* XXX: There's some weird logic for resizing widths when
+     * output is a TTY; so check this here as a quick workaround. */
+    if (options.width == WIDTH_UNSET && color_format == F_ITERM2) {
+        width = WIDTH_UNSET;
+    }
+
     PrintRequest request = (PrintRequest) {
         .filename = image_name,
         .max_width = width,
