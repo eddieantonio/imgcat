@@ -123,8 +123,10 @@ void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& option
     bool resize_height = options.desired_height > 0;
 
     if (resize_width && resize_height) {
-        fprintf(stderr, "Not implemented!\n");
-        abort();
+        /* Make sure the image is never smaller than 1x1 pixels. */
+        int new_width = std::max(options.max_width, 1);
+        int new_height = std::max(options.desired_height, 1);
+        img.resize(new_width, new_height);
     } else if (resize_width) {
         /* Only resize if the image is strictly greater than the source width. */
         if (img.width() <= options.max_width) {
@@ -140,9 +142,6 @@ void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& option
         double ratio = ((double) img.width()) / img.height();
         /* Scale width, ensuring it's at least 1px. */
         int new_width = std::max((int) (ratio * (double) new_height), 1);
-
-        fprintf(stderr, "width: %d, height: %d, ratio: %g\n",
-                new_width, new_height, ratio);
         img.resize(new_width, new_height);
     }
 }
