@@ -324,7 +324,7 @@ static const char* parse_args(int argc, char **argv) {
     opterr = 0;
 
     while (1) {
-        c = getopt_long(argc, argv, "w:d:Rhv", long_options, NULL);
+        c = getopt_long(argc, argv, "w:r:d:Rhv", long_options, NULL);
         if (c == -1) {
             break;
         }
