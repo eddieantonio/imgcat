@@ -43,11 +43,12 @@ static struct {
     Format format;
     bool should_resize;
     int width;
-    /* TODO: height. */
+    int height;
 } options = {
     .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
     .width = WIDTH_UNSET,
+    .height = HEIGHT_UNSET,
 };
 
 /* Terminal info. */
@@ -59,7 +60,7 @@ static struct {
     Format optimum_format;
 } terminal = {
     .width = WIDTH_UNSET,
-    .height = 0,
+    .height = HEIGHT_UNSET,
     .colors = 0,
     .isatty = false,
     .optimum_format = F_8_COLOR
@@ -77,6 +78,7 @@ static struct option long_options[] = {
     /* Options affecting resizing. */
     { "no-resize",      no_argument,            NULL,           'R' },
     { "width",          required_argument,      NULL,           'w' },
+    { "height",         required_argument,      NULL,           'r' },
 
 
     /* Abbreviated options. */
@@ -107,6 +109,7 @@ static char const* program_name;
 
 int main(int argc, char **argv) {
     int width;
+    int height = HEIGHT_UNSET;
     bool status;
     const char *image_name;
     Format color_format = F_UNSET;
@@ -127,9 +130,14 @@ int main(int argc, char **argv) {
     determine_terminal_capabilities();
 
     /* Determine if the image should be resized. */
-    if ((options.width >= 1) && (options.should_resize)) {
-        /* Use explicitly provided width. */
-        width = options.width;
+    if (options.should_resize) {
+        /* Use explicitly provided dimensions. */
+        if (options.width != WIDTH_UNSET) {
+            width = options.width;
+        }
+        if (options.height != HEIGHT_UNSET) {
+            height = options.height;
+        }
     } else if ((!terminal.isatty) || (!options.should_resize)) {
         /* Don't resize if not a terminal or told to do so. */
         width = WIDTH_UNSET;
@@ -154,7 +162,7 @@ int main(int argc, char **argv) {
     PrintRequest request = (PrintRequest) {
         .filename = image_name,
         .max_width = width,
-        .max_height = DIMENSION_UNSET,
+        .max_height = height,
         .format = color_format
     };
     status = print_image(&request);
@@ -257,7 +265,7 @@ static void usage(FILE *dest) {
     const int field_width = strlen(program_name);
     fprintf(dest, "Usage:\n");
     fprintf(dest,
-            "\t%s"  " [--width=<characters>|--no-rescale]\n"
+            "\t%s"  " [--width=<columns> --height=<rows>|--no-rescale]\n"
             "\t%*c" " [--depth=(8|256|iterm2)] IMAGE\n",
             program_name, field_width, ' ');
     fprintf(dest, "\t"
@@ -326,6 +334,14 @@ static const char* parse_args(int argc, char **argv) {
                 options.width = (int)strtol(optarg, NULL, 10);
                 if (options.width < 1) {
                     bad_usage("Width must be a positive integer, not '%s'",
+                              optarg);
+                }
+                break;
+
+            case 'r':
+                options.height = (int)strtol(optarg, NULL, 10);
+                if (options.height < 1) {
+                    bad_usage("Height must be a positive integer, not '%s'",
                               optarg);
                 }
                 break;
