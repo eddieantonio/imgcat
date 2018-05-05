@@ -60,13 +60,13 @@ bool print_image(PrintRequest *request) {
 
 
 static bool print_iterate(PrintRequest *request) {
+    struct Image image;
     const char *filename = request->filename;
     int max_width = request->max_width;
     Format format = request->format;
-
-    struct Image image;
     struct LoadOpts options = {
-        .max_width = max_width
+        .max_width = max_width,
+        .desired_height = request->max_height
     };
     assert(format != F_UNSET);
 

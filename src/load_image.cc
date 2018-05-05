@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 
 #include "cimg_config.h"
 #include "CImg.hpp"
@@ -118,11 +119,30 @@ void unload_image(Image *image) {
 
 namespace {
 void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& options) {
-    /* TODO: factor the width/height stuff better... */
-    if ((options.max_width > 0) && (img.width() > options.max_width)) {
+    bool resize_width = options.max_width > 0;
+    bool resize_height = options.desired_height > 0;
+
+    if (resize_width && resize_height) {
+        fprintf(stderr, "Not implemented!\n");
+        abort();
+    } else if (resize_width) {
+        /* Only resize if the image is strictly greater than the source width. */
+        if (img.width() <= options.max_width) {
+            return;
+        }
         int new_width = options.max_width;
         double ratio = ((double) img.height()) / img.width();
         int new_height = ratio * (double) new_width;
+        img.resize(new_width, new_height);
+    } else if (resize_height) {
+        /* Resize without affecting aspect ratio. */
+        int new_height = options.desired_height;
+        double ratio = ((double) img.width()) / img.height();
+        /* Scale width, ensuring it's at least 1px. */
+        int new_width = std::max((int) (ratio * (double) new_height), 1);
+
+        fprintf(stderr, "width: %d, height: %d, ratio: %g\n",
+                new_width, new_height, ratio);
         img.resize(new_width, new_height);
     }
 }
