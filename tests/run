@@ -70,6 +70,9 @@ imgcat_tests() {
 
     # Test --x-terminal-override
     assert_ok   imgcat --x-terminal-override=80x24:256 "$ANY_IMAGE"
+    # Test regression 19  <https://github.com/eddieantonio/imgcat/issues/19>
+    assert_eq   out/1px_256/256.bin \
+        imgcat --x-terminal-override=80x24:256 img/1px_256.png
 }
 
 

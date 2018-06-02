@@ -53,26 +53,30 @@ static struct {
     int width;
     int height;
     bool use_fake_terminal;
-    struct terminal_t fake_terminal;
 } options = {
     .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
     .width = WIDTH_UNSET,
     .height = HEIGHT_UNSET,
     .use_fake_terminal = false,
-    .fake_terminal = { 0 },
 };
 
 /**
  * Info about the user's real terminal.
  */
-static struct terminal_t terminal = {
+static struct terminal_t real_terminal = {
     .width = WIDTH_UNSET,
     .height = HEIGHT_UNSET,
     .colors = 0,
     .isatty = false,
     .optimum_format = F_8_COLOR
 };
+
+/**
+ * Fake terminal used in --x-terminal-override.
+ */
+static struct terminal_t fake_terminal = { 0 };
+static struct terminal_t* terminal = &real_terminal;
 
 /* Global temporary filename for dumping stdin into.  */
 #define MAX_TEMPFILE_NAME 128
@@ -152,19 +156,19 @@ int main(int argc, char **argv) {
         if (options.height != HEIGHT_UNSET) {
             height = options.height;
         }
-    } else if ((!terminal.isatty) || (!options.should_resize)) {
+    } else if ((!terminal->isatty) || (!options.should_resize)) {
         /* Don't resize if not a terminal or told to do so. */
         width = WIDTH_UNSET;
     } else {
         /* Use maximum width from what was infered of the terminal. */
-        width = terminal.width;
+        width = terminal->width;
     }
 
     /* Set color format either from options, or infered from the terminal. */
     if (options.format != F_UNSET) {
         color_format = options.format;
     } else {
-        color_format = terminal.optimum_format;
+        color_format = terminal->optimum_format;
     }
 
     /* XXX: There's some weird logic for resizing widths when
@@ -214,23 +218,23 @@ static void determine_terminal_capabilities() {
         return;
     }
 
-    terminal.isatty = true;
+    real_terminal.isatty = true;
 
     /* Get the current window size. */
     assert(ioctl(stdout_fd, TIOCGWINSZ, &ws) != -1);
-    terminal.width = ws.ws_col;
-    terminal.height = ws.ws_row;
+    real_terminal.width = ws.ws_col;
+    real_terminal.height = ws.ws_row;
 
-    terminal.colors = get_terminal_colours();
+    real_terminal.colors = get_terminal_colours();
 
     /* ITERM_SESSION_ID is exported in iTerm2 sessions. */
     if (getenv("ITERM_SESSION_ID") != NULL) {
-        terminal.optimum_format = F_ITERM2;
+        real_terminal.optimum_format = F_ITERM2;
     /* Otherwise, determine the capability from the reported colours. */
-    } else if (terminal.colors >= 256) {
-        terminal.optimum_format = F_256_COLOR;
-    } else if (terminal.colors >= 8) {
-        terminal.optimum_format = F_8_COLOR;
+    } else if (real_terminal.colors >= 256) {
+        real_terminal.optimum_format = F_256_COLOR;
+    } else if (real_terminal.colors >= 8) {
+        real_terminal.optimum_format = F_8_COLOR;
     } else {
         assert(0 && "Don't know what color depth is best for you...");
     }
@@ -407,9 +411,9 @@ static const char* parse_args(int argc, char **argv) {
 
 
 /**
- * Parses the x-override-terminal string.
+ * Parses the --x-terminal-override string.
  *
- * WIDTHxHEIGHTxCOLORS
+ * Options are: WIDTHxHEIGHTxCOLORS
  */
 static void set_fake_terminal(const char *override_string) {
     int width, height, colors;
@@ -423,10 +427,10 @@ static void set_fake_terminal(const char *override_string) {
         bad_usage("invalid settings: %s", override_string);
     }
 
-    options.fake_terminal.width = width;
-    options.fake_terminal.height = height;
-    options.fake_terminal.colors = colors;
-    /* We're doing this --x-override-terminal stuff to *simulate* isatty
+    fake_terminal.width = width;
+    fake_terminal.height = height;
+    fake_terminal.colors = colors;
+    /* We're doing this --x-terminal-override stuff to *simulate* isatty
      * without calling it, so ALWAYS set isatty to true. */
-    options.fake_terminal.isatty = true;
+    fake_terminal.isatty = true;
 }
