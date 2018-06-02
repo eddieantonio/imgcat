@@ -64,6 +64,12 @@ imgcat_tests() {
         imgcat -d 8 -R        -r 128 img/1px_8.png
     assert_eq   out/1px_8/8.bin \
         imgcat -d 8 -R -w 128 -r 128 img/1px_8.png
+
+
+    ### Internal sturf below: ###
+
+    # Test --x-terminal-override
+    assert_ok   imgcat --x-terminal-override=80x24:256 "$ANY_IMAGE"
 }
 
 

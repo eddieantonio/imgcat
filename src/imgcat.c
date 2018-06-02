@@ -35,6 +35,14 @@
 #include "print_image.h"
 #include "config.h"
 
+/* All the information I care about the terminal. */
+struct terminal_t {
+    int width;
+    int height;
+    int colors;
+    bool isatty;
+    Format optimum_format;
+};
 
 /**
  * Global containing all relevant command line options.
@@ -44,21 +52,21 @@ static struct {
     bool should_resize;
     int width;
     int height;
+    bool use_fake_terminal;
+    struct terminal_t fake_terminal;
 } options = {
     .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
     .width = WIDTH_UNSET,
     .height = HEIGHT_UNSET,
+    .use_fake_terminal = false,
+    .fake_terminal = { 0 },
 };
 
-/* Terminal info. */
-static struct {
-    int width;
-    int height;
-    int colors;
-    bool isatty;
-    Format optimum_format;
-} terminal = {
+/**
+ * Info about the user's real terminal.
+ */
+static struct terminal_t terminal = {
     .width = WIDTH_UNSET,
     .height = HEIGHT_UNSET,
     .colors = 0,
@@ -91,6 +99,11 @@ static struct option long_options[] = {
     { "help",           no_argument,            NULL,           'h' },
     { "version",        no_argument,            NULL,           'v' },
 
+    /* Options for internal use and debugging. */
+    /* These flags are EXPLICITLY undocumented, as they are for development
+     * use only, and can change or be removed at any time. */
+    { "x-terminal-override", required_argument, NULL,           'x' },
+
     { NULL,             0,                      NULL,           0   }
 };
 
@@ -100,6 +113,7 @@ static const char* parse_args(int argc, char **argv);
 static void bad_usage(const char *msg, ...) __attribute__((noreturn));
 static void fatal_error(int code, const char *msg, ...) __attribute__((noreturn));
 static void determine_terminal_capabilities();
+static void set_fake_terminal(const char *);
 static void usage(FILE *dest);
 static const char *dump_stdin_into_tempfile();
 
@@ -366,6 +380,11 @@ static const char* parse_args(int argc, char **argv) {
                 exit(EXIT_SUCCESS);
                 break;
 
+            case 'x':
+                options.use_fake_terminal = true;
+                set_fake_terminal(optarg);
+                break;
+
             case 0:
                 /* Set an abbreviated option like --8, --ansi, --256. */
                 break;
@@ -384,4 +403,30 @@ static const char* parse_args(int argc, char **argv) {
     } else {
         return argv[optind];
     }
+}
+
+
+/**
+ * Parses the x-override-terminal string.
+ *
+ * WIDTHxHEIGHTxCOLORS
+ */
+static void set_fake_terminal(const char *override_string) {
+    int width, height, colors;
+
+    int opts = sscanf(override_string, "%dx%d:%d", &width, &height, &colors);
+    if (opts != 3) {
+        bad_usage("invalid override string: %s", override_string);
+    }
+
+    if (width <= 0 || height <= 0 || colors <= 0) {
+        bad_usage("invalid settings: %s", override_string);
+    }
+
+    options.fake_terminal.width = width;
+    options.fake_terminal.height = height;
+    options.fake_terminal.colors = colors;
+    /* We're doing this --x-override-terminal stuff to *simulate* isatty
+     * without calling it, so ALWAYS set isatty to true. */
+    options.fake_terminal.isatty = true;
 }
