@@ -52,6 +52,12 @@ bool load_image(const char *filename, Image *image, struct LoadOpts* options) {
 
     assert(img.data() != nullptr);
 
+    /* XXX: Set the desired width when the image is too wide  */
+    if ((options->desired_width <= 0) &&
+            (img.width() > options->max_width)) {
+        options->desired_width = options->max_width;
+    }
+
     /* The image may be resized smaller. */
     maybe_resize(img, *options);
 
@@ -119,12 +125,12 @@ void unload_image(Image *image) {
 
 namespace {
 void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& options) {
-    bool resize_width = options.max_width > 0;
+    bool resize_width = options.desired_width > 0;
     bool resize_height = options.desired_height > 0;
 
     if (resize_width && resize_height) {
         /* Make sure the image is never smaller than 1x1 pixels. */
-        int new_width = std::max(options.max_width, 1);
+        int new_width = std::max(options.desired_width, 1);
         int new_height = std::max(options.desired_height, 1);
         img.resize(new_width, new_height);
     } else if (resize_width) {
@@ -132,7 +138,7 @@ void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& option
         if (img.width() <= options.max_width) {
             return;
         }
-        int new_width = options.max_width;
+        int new_width = options.desired_width;
         double ratio = ((double) img.height()) / img.width();
         int new_height = ratio * (double) new_width;
         img.resize(new_width, new_height);

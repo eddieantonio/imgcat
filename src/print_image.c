@@ -62,11 +62,12 @@ bool print_image(PrintRequest *request) {
 static bool print_iterate(PrintRequest *request) {
     struct Image image;
     const char *filename = request->filename;
-    int max_width = request->max_width;
     Format format = request->format;
     struct LoadOpts options = {
-        .max_width = max_width,
-        .desired_height = request->max_height
+        .max_width = request->max_width,
+        .max_height = request->max_height,
+        .desired_width = request->desired_width,
+        .desired_height = request->desired_height,
     };
     assert(format != F_UNSET);
 
@@ -111,12 +112,13 @@ static bool iterm2_passthrough(PrintRequest *request) {
     print_osc();
     printf("1337;File=inline=1");
 
-    if (request->max_width > 0) {
-        /* TODO: bounds checking? */
-        printf(";width=%d", request->max_width);
+    assert(request->desired_width == WIDTH_UNSET || request->desired_width > 0);
+    assert(request->desired_height == HEIGHT_UNSET || request->desired_height > 0);
+    if (request->desired_width != WIDTH_UNSET) {
+        printf(";width=%d", request->desired_width);
     }
-    if (request->max_height > 0) {
-        printf(";height=%d", request->max_height);
+    if (request->desired_height != HEIGHT_UNSET) {
+        printf(";height=%d", request->desired_height);
     }
 
     printf(":");
