@@ -76,7 +76,6 @@ static struct terminal_t real_terminal = {
  * Fake terminal used in --x-terminal-override.
  */
 static struct terminal_t fake_terminal = { 0 };
-static struct terminal_t* terminal = &real_terminal;
 
 /* Global temporary filename for dumping stdin into.  */
 #define MAX_TEMPFILE_NAME 128
@@ -117,6 +116,7 @@ static const char* parse_args(int argc, char **argv);
 static void bad_usage(const char *msg, ...) __attribute__((noreturn));
 static void fatal_error(int code, const char *msg, ...) __attribute__((noreturn));
 static void determine_terminal_capabilities();
+static void determine_optimum_color_format(struct terminal_t *);
 static void set_fake_terminal(const char *);
 static void usage(FILE *dest);
 static const char *dump_stdin_into_tempfile();
@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
     bool status;
     const char *image_name;
     Format color_format = F_UNSET;
+    struct terminal_t* terminal;
     program_name = argv[0];
 
     image_name = parse_args(argc, argv);
@@ -145,7 +146,15 @@ int main(int argc, char **argv) {
         }
     }
 
-    determine_terminal_capabilities();
+    if (options.use_fake_terminal) {
+        /* For debugging and testing, use the overridden terminal. */
+        terminal = &fake_terminal;
+        fprintf(stderr, "Using overridden terminal: %dx%d at %d colors\n",
+                terminal->width, terminal->height, terminal->colors);
+    } else {
+        determine_terminal_capabilities();
+        terminal = &real_terminal;
+    }
 
     /* Determine if the image should be resized. */
     if (options.should_resize) {
@@ -231,12 +240,24 @@ static void determine_terminal_capabilities() {
     if (getenv("ITERM_SESSION_ID") != NULL) {
         real_terminal.optimum_format = F_ITERM2;
     /* Otherwise, determine the capability from the reported colours. */
-    } else if (real_terminal.colors >= 256) {
-        real_terminal.optimum_format = F_256_COLOR;
-    } else if (real_terminal.colors >= 8) {
-        real_terminal.optimum_format = F_8_COLOR;
     } else {
-        assert(0 && "Don't know what color depth is best for you...");
+        determine_optimum_color_format(&real_terminal);
+    }
+}
+
+/**
+ * Figures out the ideal color format for a terminal, by only considering its
+ * self-reported color depth.
+ */
+static void determine_optimum_color_format(struct terminal_t *terminal) {
+    if (terminal->colors >= 256) {
+        terminal->optimum_format = F_256_COLOR;
+    } else if (terminal->colors >= 8) {
+        terminal->optimum_format = F_8_COLOR;
+    } else {
+        fprintf(stderr, "%s: Cannot determine optimum color depth for "
+                "reported %d terminal colors setting\n",
+                program_name, terminal->colors);
     }
 }
 
@@ -430,6 +451,7 @@ static void set_fake_terminal(const char *override_string) {
     fake_terminal.width = width;
     fake_terminal.height = height;
     fake_terminal.colors = colors;
+    determine_optimum_color_format(&fake_terminal);
     /* We're doing this --x-terminal-override stuff to *simulate* isatty
      * without calling it, so ALWAYS set isatty to true. */
     fake_terminal.isatty = true;
