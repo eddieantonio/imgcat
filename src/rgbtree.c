@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, 2017, Eddie Antonio Santos <easantos@ualberta.ca>
+ * Copyright (c) 2012, 2014–2018, Eddie Antonio Santos <easantos@ualberta.ca>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above

@@ -102,5 +102,5 @@ Acknowledgements
 License
 -------
 
-Copyright © 2014, 2016, 2017 Eddie Antonio Santos.
+Copyright © 2014–2018 Eddie Antonio Santos.
 Distributed under the terms of the [ISC license](./LICENSE).
