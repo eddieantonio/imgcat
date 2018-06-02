@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2017, Eddie Antonio Santos <easantos@ualberta.ca>
+ * Copyright (c) 2014–2018 Eddie Antonio Santos <easantos@ualberta.ca>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -23,9 +23,11 @@
 #include <stdbool.h>
 
 /* The dimension has been left unspecified. */
-#define DIMENSION_UNSET 0
-#define WIDTH_UNSET     (DIMENSION_UNSET)
-#define HEIGHT_UNSET    (DIMENSION_UNSET)
+enum {
+    DIMENSION_UNSET = 0,
+    WIDTH_UNSET     = DIMENSION_UNSET,
+    HEIGHT_UNSET    = DIMENSION_UNSET,
+};
 
 /* The output color depth/format. */
 typedef enum {
@@ -39,6 +41,8 @@ typedef struct {
     const char *filename;
     int max_width;
     int max_height;
+    int desired_width;
+    int desired_height;
     Format format;
 } PrintRequest;
 

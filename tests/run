@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2017  Eddie Antonio Santos <easantos@ualberta.ca>
+# Copyright (c) 2017, 2018  Eddie Antonio Santos <easantos@ualberta.ca>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -70,9 +70,12 @@ imgcat_tests() {
 
     # Test --x-terminal-override
     assert_ok   imgcat --x-terminal-override=80x24:256 "$ANY_IMAGE"
-    # Test regression 19  <https://github.com/eddieantonio/imgcat/issues/19>
     assert_eq   out/1px_256/256.bin \
         imgcat --x-terminal-override=80x24:256 img/1px_256.png
+    # Test regression 19  <https://github.com/eddieantonio/imgcat/issues/19>
+    # This should resize the 512x512 image to 80 rows and 80 columns.
+    assert_eq   out/512x512px_magenta.png/256.80xN.bin \
+        imgcat --x-terminal-override=80x24:256 img/256x256px_magenta.png
 }
 
 

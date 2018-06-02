@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2017, Eddie Antonio Santos <easantos@ualberta.ca>
+ * Copyright (c) 2014–2018, Eddie Antonio Santos <easantos@ualberta.ca>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -126,8 +126,8 @@ static char const* program_name;
 
 
 int main(int argc, char **argv) {
-    int width;
-    int height = HEIGHT_UNSET;
+    int desired_width = WIDTH_UNSET;
+    int desired_height = HEIGHT_UNSET;
     bool status;
     const char *image_name;
     Format color_format = F_UNSET;
@@ -146,9 +146,12 @@ int main(int argc, char **argv) {
         }
     }
 
+    /* Determine whether to use the real termainal or the fake (overridden)
+     * terminal */
     if (options.use_fake_terminal) {
         /* For debugging and testing, use the overridden terminal. */
         terminal = &fake_terminal;
+        assert(terminal->isatty);
         fprintf(stderr, "Using overridden terminal: %dx%d at %d colors\n",
                 terminal->width, terminal->height, terminal->colors);
     } else {
@@ -160,17 +163,11 @@ int main(int argc, char **argv) {
     if (options.should_resize) {
         /* Use explicitly provided dimensions. */
         if (options.width != WIDTH_UNSET) {
-            width = options.width;
+            desired_width = options.width;
         }
         if (options.height != HEIGHT_UNSET) {
-            height = options.height;
+            desired_height = options.height;
         }
-    } else if ((!terminal->isatty) || (!options.should_resize)) {
-        /* Don't resize if not a terminal or told to do so. */
-        width = WIDTH_UNSET;
-    } else {
-        /* Use maximum width from what was infered of the terminal. */
-        width = terminal->width;
     }
 
     /* Set color format either from options, or infered from the terminal. */
@@ -180,16 +177,12 @@ int main(int argc, char **argv) {
         color_format = terminal->optimum_format;
     }
 
-    /* XXX: There's some weird logic for resizing widths when
-     * output is a TTY; so check this here as a quick workaround. */
-    if (options.width == WIDTH_UNSET && color_format == F_ITERM2) {
-        width = WIDTH_UNSET;
-    }
-
     PrintRequest request = (PrintRequest) {
         .filename = image_name,
-        .max_width = width,
-        .max_height = height,
+        .desired_width = desired_width,
+        .desired_height = desired_height,
+        .max_width = terminal->width,
+        .max_height = terminal->height,
         .format = color_format
     };
     status = print_image(&request);
@@ -239,8 +232,8 @@ static void determine_terminal_capabilities() {
     /* ITERM_SESSION_ID is exported in iTerm2 sessions. */
     if (getenv("ITERM_SESSION_ID") != NULL) {
         real_terminal.optimum_format = F_ITERM2;
-    /* Otherwise, determine the capability from the reported colours. */
     } else {
+        /* Otherwise, determine the capability from the reported colours. */
         determine_optimum_color_format(&real_terminal);
     }
 }
