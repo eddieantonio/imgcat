@@ -12,7 +12,10 @@ is is unspecified, or can be safely ignored.
 Using regular cat(1) with any of the `*.bin` files should output the
 image on the terminal!
 
+An "H" after the color format indicates that the output is made for
+half-height blocks (like ▀).
+
     .
     ├── {image_name}
-        ├── {color-format}.bin
-        └── {color-format}.{width}x{height}.bin
+        ├── {color-format}{H?}.bin
+        └── {color-format}{H?}.{width}x{height}.bin
