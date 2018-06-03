@@ -92,7 +92,7 @@ static struct option long_options[] = {
     { "no-resize",      no_argument,            NULL,           'R' },
     { "width",          required_argument,      NULL,           'w' },
     { "height",         required_argument,      NULL,           'r' },
-    { "half-height",    required_argument,      NULL,           'H' },
+    { "half-height",    no_argument,            NULL,           'H' },
 
     /* Abbreviated options. */
     { "8",      no_argument, (int*) &options.format,    F_8_COLOR   },
@@ -301,7 +301,7 @@ static void usage(FILE *dest) {
     fprintf(dest, "Usage:\n");
     fprintf(dest,
             "\t%s"  " [--width=<columns> --height=<rows>|--no-rescale]\n"
-            "\t%*c" " [--depth=(8|256|iterm2)] IMAGE\n",
+            "\t%*c" " [--half-height] [--depth=(8|256|iterm2)] IMAGE\n",
             program_name, field_width, ' ');
     fprintf(dest, "\t"
             "%s --version\n", program_name);

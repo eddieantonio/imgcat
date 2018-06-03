@@ -14,24 +14,38 @@
 **imgcat** prints an image to your terminal screen.
 
 The image can either be provided as a command line argument, or can be
-piped into `stdin`.
+piped in through `stdin`.
 
 By default, the image is printed at the full width and color depth
-detected for your terminal. These can be overridden using **-w** to
+detected for your terminal. This can be overridden using **-w** to
 adjust the maximum width or **-R** to prevent resizing, even if the
 image is too big to fit in the terminal; and **-d** to explicitly the
 set color depth. You may also use **-r** to adjust the height ("r" for
 "number of rows"). If only one of **-w** or **-r** is provided, the
 image will be scaled without affecting the aspect ratio, if possible.
 
-__Make sure your `TERM` environment variable is set to a terminfo with
-the full capabilities of you terminal!__ See **Troubleshooting** if
-you're having a problem with this.
+Setting **-H** enables the use of half-height block drawing characters
+(as opposed to "full height" spaces used in the default mode). This
+effectively doubles the vertical resolution of the terminal, and thus
+the image on your terminal will appear less "squished", and will appear
+as if it has better pixel resolution. Note that this effect works best
+on terminals that output using a bitmapped font, and have a line height
+of exactly 100% ([example][bitmapped-H]). Using anti-aliased fonts may
+distort the blocks, and using a taller line height will make the
+half-height block cover *less* than half of the block, further
+distorting the image ([example][bad-H]). Your millage may vary.
 
 If the output is not a terminal (that is, output is redirected to
 a file, or piped into another program), then the image is **not**
 resized and the color depth is set to 8 colors. Overriding both width,
 height, and color depth still work.
+
+__Make sure your `TERM` environment variable is set to a terminfo with
+the full capabilities of you terminal!__ See **Troubleshooting** if
+you're having a problem with this.
+
+[bitmapped-H]: https://git.io/vhW5F
+[bad-H]: https://git.io/vhW5d
 
 ## Options
 
@@ -42,6 +56,12 @@ height, and color depth still work.
 
 **-h**, **--help**
   ~ Show common options and quit.
+
+**-H**, **--half-height**
+ ~ Prints half-height blocks to double the vertical resolution, and make
+ for a less squished image. Works best when each character cell is
+ exactly twice as tall as it is wide and when your terminal is using
+ a bitmapped font.
 
 **-r** _ROWS_, **--height**=_ROWS_
   ~ Resizes the image to _ROWS_ characters high.
