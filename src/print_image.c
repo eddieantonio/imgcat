@@ -28,17 +28,32 @@
 
 #include "rgbtree.h"
 
+enum {
+    /* PixelFuncs writes "parameter bytes" to a provided buffer that is
+     * **at most** this big.
+     * Parameter bytes are the bytes that go between the Command Sequence
+     * Initiator (CSI, a.k.a, "\033[") and the "m" at the end.
+     */
+    MAX_ESC_SEQUENCE_LEN = sizeof("38;5;000;48;5;000")
+};
+
 typedef const unsigned char Pixel;
-typedef void (*PixelFunc)(Pixel *pixel);
+/**
+ * A pixel function takes in a pixel and places an escape sequence within a
+ * buffer. It must return a pointer to characters allocated within the
+ * provided buffer.
+ */
+typedef const char* (*PixelFunc)(Pixel *pixel, char sequence[]);
 
 static bool iterm2_passthrough(PrintRequest *request);
 static bool print_base64(const char *filename);
 static bool print_iterate(PrintRequest *request);
+static void half_height_image_iterator(struct Image *image, PixelFunc printer);
 static void image_iterator(struct Image *image, PixelFunc printer);
 static void print_osc();
 static void print_st();
-static void printer_256_color(Pixel *pixel);
-static void printer_8_color(Pixel *pixel);
+static const char* printer_256_color(Pixel *pixel, char sequence[]);
+static const char* printer_8_color(Pixel *pixel, char sequence[]);
 
 /* The 8 color table. It has 8 colors. */
 static const RGB_Tuple ansi_color_table[] = {
@@ -94,7 +109,11 @@ static bool print_iterate(PrintRequest *request) {
     }
 
     /* Print the image with the given pixel func. */
-    image_iterator(&image, printer);
+    if (request->half_height) {
+        half_height_image_iterator(&image, printer);
+    } else {
+        image_iterator(&image, printer);
+    }
 
     unload_image(&image);
     return true;
@@ -132,36 +151,49 @@ static bool iterm2_passthrough(PrintRequest *request) {
  * Iterates through the image, x, then y,
  */
 static void image_iterator(struct Image *image, PixelFunc printer) {
-    int x, y;
+    char sequence[MAX_ESC_SEQUENCE_LEN];
     const int width = image->width, height = image->height;
-    int color_depth = image->depth;
-    unsigned char *buffer = image->buffer;
+    const int color_depth = image->depth;
+    unsigned char *pixels = image->buffer;
 
-    for (y = 0; y < height; y++) {
+
+    for (int y = 0; y < height; y++) {
         /* Print each pixel. */
-        for (x = 0; x < width; x++) {
-            /* Get the position of the pixel in the image. */
-            uint8_t *pixel = buffer + color_depth * (x + width * y);
+        for (int x = 0; x < width; x++) {
+            /* Get the position of the first channel of the pixel. */
+            uint8_t *pixel = pixels + color_depth * (x + width * y);
             /* Delegate to the provided printer. */
-            printer(pixel);
+            const char* parameter_bytes = printer(pixel, sequence);
+
+            assert(parameter_bytes >= sequence);
+            assert(parameter_bytes < sequence + MAX_ESC_SEQUENCE_LEN);
+            printf("\033[%sm ", parameter_bytes);
         }
         /* Finish the line. */
+        /* TODO: this can go at the very end. */
         printf("\033[49m\n");
     }
 }
 
 /**
+ * Iterates through the image, two rows at a time, two pixels per cell.
+ */
+static void half_height_image_iterator(struct Image *image, PixelFunc printer) {
+}
+
+/**
  * Gets a colour match from the global RGB tree.
  */
-static void printer_256_color(Pixel *pixel) {
+static const char* printer_256_color(Pixel *pixel, char sequence[]) {
     const RGB_Node *match = rgb_closest_colour(pixel[0], pixel[1], pixel[2]);
     int closest_code = match->id;
-    printf("\033[48;5;%03dm ", closest_code);
+    snprintf(sequence, MAX_ESC_SEQUENCE_LEN, "48;5;%03d", closest_code);
+    return sequence;
 }
 
 /* Gets a color from the list. Will take same number of steps as the tree
  * version. */
-static void printer_8_color(Pixel *pixel) {
+static const char* printer_8_color(Pixel *pixel, char sequence[]) {
     RGB_Tuple target = {{pixel[0], pixel[1], pixel[2]}};
     int i, best_index = 0;
     unsigned int distance, closest;
@@ -177,7 +209,8 @@ static void printer_8_color(Pixel *pixel) {
 
     /* It turns out that the 8 color array has the SAME indices as its
      * corresponding ANSI escape sequence. */
-    printf("\033[4%1dm ", best_index);
+    snprintf(sequence, MAX_ESC_SEQUENCE_LEN, "4%1d", best_index);
+    return sequence;
 }
 
 static void print_base64_char(uint8_t c) {
