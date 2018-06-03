@@ -37,13 +37,17 @@ enum {
     MAX_ESC_SEQUENCE_LEN = sizeof("38;5;000;48;5;000")
 };
 
+enum layer {
+    BACKGROUND, FOREGROUND
+};
+
 typedef const unsigned char Pixel;
 /**
  * A pixel function takes in a pixel and places an escape sequence within a
  * buffer. It must return a pointer to characters allocated within the
  * provided buffer.
  */
-typedef const char* (*PixelFunc)(Pixel *pixel, char sequence[]);
+typedef const char* (*PixelFunc)(Pixel *pixel, char sequence[], enum layer);
 
 static bool iterm2_passthrough(PrintRequest *request);
 static bool print_base64(const char *filename);
@@ -52,8 +56,8 @@ static void half_height_image_iterator(struct Image *image, PixelFunc printer);
 static void image_iterator(struct Image *image, PixelFunc printer);
 static void print_osc();
 static void print_st();
-static const char* printer_256_color(Pixel *pixel, char sequence[]);
-static const char* printer_8_color(Pixel *pixel, char sequence[]);
+static const char* printer_256_color(Pixel *pixel, char sequence[], enum layer);
+static const char* printer_8_color(Pixel *pixel, char sequence[], enum layer);
 
 /* The 8 color table. It has 8 colors. */
 static const RGB_Tuple ansi_color_table[] = {
@@ -98,11 +102,11 @@ static bool print_iterate(PrintRequest *request) {
 
     /* That resized buffer? Yeah. Print it. */
     switch (format) {
-        case F_8_COLOR:
-            printer = printer_8_color;
-            break;
         case F_256_COLOR:
             printer = printer_256_color;
+            break;
+        case F_8_COLOR:
+            printer = printer_8_color;
             break;
         default:
             assert(0 && "Not a valid format.");
@@ -162,7 +166,7 @@ static void image_iterator(struct Image *image, PixelFunc printer) {
             /* Get the position of the first channel of the pixel. */
             uint8_t *pixel = pixels + color_depth * (x + width * y);
             /* Delegate to the provided printer. */
-            const char* parameter_bytes = printer(pixel, sequence);
+            const char* parameter_bytes = printer(pixel, sequence, BACKGROUND);
 
             assert(parameter_bytes >= sequence);
             assert(parameter_bytes < sequence + MAX_ESC_SEQUENCE_LEN);
@@ -194,8 +198,8 @@ static void half_height_image_iterator(struct Image *image, PixelFunc printer) {
             uint8_t *bottom_pixel = pixels + color_depth * (x + width * y);
 
             printf("\033[%s;%sm▀",
-                    printer(top_pixel, upper_half),
-                    printer(bottom_pixel, lower_half));
+                    printer(top_pixel, upper_half, FOREGROUND),
+                    printer(bottom_pixel, lower_half, BACKGROUND));
         }
         /* Finish the line by reseting the background and foreground colors.
          * If you don't reset the background color, the color "spills" to the
@@ -207,16 +211,18 @@ static void half_height_image_iterator(struct Image *image, PixelFunc printer) {
 /**
  * Gets a colour match from the global RGB tree.
  */
-static const char* printer_256_color(Pixel *pixel, char sequence[]) {
+static const char* printer_256_color(Pixel *pixel, char sequence[], enum layer layer) {
     const RGB_Node *match = rgb_closest_colour(pixel[0], pixel[1], pixel[2]);
     int closest_code = match->id;
-    snprintf(sequence, MAX_ESC_SEQUENCE_LEN, "48;5;%03d", closest_code);
+    char category = layer == FOREGROUND ? '3' : '4';
+    snprintf(sequence, MAX_ESC_SEQUENCE_LEN,
+            "%c8;5;%03d", category, closest_code);
     return sequence;
 }
 
 /* Gets a color from the list. Will take same number of steps as the tree
  * version. */
-static const char* printer_8_color(Pixel *pixel, char sequence[]) {
+static const char* printer_8_color(Pixel *pixel, char sequence[], enum layer layer) {
     RGB_Tuple target = {{pixel[0], pixel[1], pixel[2]}};
     int i, best_index = 0;
     unsigned int distance, closest;
@@ -232,7 +238,8 @@ static const char* printer_8_color(Pixel *pixel, char sequence[]) {
 
     /* It turns out that the 8 color array has the SAME indices as its
      * corresponding ANSI escape sequence. */
-    snprintf(sequence, MAX_ESC_SEQUENCE_LEN, "4%1d", best_index);
+    int ansi_code = (layer == FOREGROUND ? 30 : 40) + best_index;
+    snprintf(sequence, MAX_ESC_SEQUENCE_LEN, "%2d", ansi_code);
     return sequence;
 }
 
