@@ -64,6 +64,9 @@ imgcat_tests() {
     assert_eq   out/1px_8.png/8.bin \
         imgcat -d 8 -R -w 128 -r 128 img/1px_8.png
 
+    # Test half-height blocks
+    assert_eq   out/1px_256.png/256H.bin \
+        imgcat -H -d 256 img/1px_256.png
 
     ### Internal sturf below: ###
 

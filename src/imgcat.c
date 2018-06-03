@@ -52,12 +52,14 @@ static struct {
     bool should_resize;
     int width;
     int height;
+    bool use_half_height;
     bool use_fake_terminal;
 } options = {
     .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
     .width = WIDTH_UNSET,
     .height = HEIGHT_UNSET,
+    .use_half_height = false,
     .use_fake_terminal = false,
 };
 
@@ -86,11 +88,11 @@ static struct option long_options[] = {
     /* Options affecting output colour depth. */
     { "depth",          required_argument,      NULL,           'd' },
 
-    /* Options affecting resizing. */
+    /* Options affecting size. */
     { "no-resize",      no_argument,            NULL,           'R' },
     { "width",          required_argument,      NULL,           'w' },
     { "height",         required_argument,      NULL,           'r' },
-
+    { "half-height",    required_argument,      NULL,           'H' },
 
     /* Abbreviated options. */
     { "8",      no_argument, (int*) &options.format,    F_8_COLOR   },
@@ -183,6 +185,7 @@ int main(int argc, char **argv) {
         .desired_height = desired_height,
         .max_width = terminal->width,
         .max_height = terminal->height,
+        .half_height = options.use_half_height,
         .format = color_format
     };
     status = print_image(&request);
@@ -356,13 +359,13 @@ static const char* parse_args(int argc, char **argv) {
     opterr = 0;
 
     while (1) {
-        c = getopt_long(argc, argv, "w:r:d:Rhv", long_options, NULL);
+        c = getopt_long(argc, argv, "w:r:d:RHhv", long_options, NULL);
         if (c == -1) {
             break;
         }
 
         switch (c) {
-            case 'w':
+            case 'w': /* --width */
                 options.width = (int)strtol(optarg, NULL, 10);
                 if (options.width < 1) {
                     bad_usage("Width must be a positive integer, not '%s'",
@@ -370,7 +373,7 @@ static const char* parse_args(int argc, char **argv) {
                 }
                 break;
 
-            case 'r':
+            case 'r': /* --rows */
                 options.height = (int)strtol(optarg, NULL, 10);
                 if (options.height < 1) {
                     bad_usage("Height must be a positive integer, not '%s'",
@@ -378,27 +381,32 @@ static const char* parse_args(int argc, char **argv) {
                 }
                 break;
 
-            case 'd':
+            case 'd': /* --depth=(8|ansi|256|iterm2) */
                 options.format = parse_format(optarg);
                 if (options.format == F_UNSET) {
                     bad_usage("Unknown output format: %s", optarg);
                 }
                 break;
-            case 'R':
+
+            case 'R': /* --no-resize */
                 options.should_resize = false;
                 break;
 
-            case 'h':
+            case 'H': /* --half-height */
+                options.use_half_height = true;
+                break;
+
+            case 'h': /* --help */
                 usage(stdout);
                 exit(EXIT_SUCCESS);
                 break;
 
-            case 'v':
+            case 'v': /* --version */
                 printf("%s %s\n", program_name, PACKAGE_VERSION);
                 exit(EXIT_SUCCESS);
                 break;
 
-            case 'x':
+            case 'x': /* --x-terminal-override */
                 options.use_fake_terminal = true;
                 set_fake_terminal(optarg);
                 break;

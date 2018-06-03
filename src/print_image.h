@@ -43,6 +43,7 @@ typedef struct {
     int max_height;
     int desired_width;
     int desired_height;
+    bool half_height;
     Format format;
 } PrintRequest;
 
