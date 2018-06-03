@@ -156,7 +156,6 @@ static void image_iterator(struct Image *image, PixelFunc printer) {
     const int color_depth = image->depth;
     unsigned char *pixels = image->buffer;
 
-
     for (int y = 0; y < height; y++) {
         /* Print each pixel. */
         for (int x = 0; x < width; x++) {
@@ -179,6 +178,30 @@ static void image_iterator(struct Image *image, PixelFunc printer) {
  * Iterates through the image, two rows at a time, two pixels per cell.
  */
 static void half_height_image_iterator(struct Image *image, PixelFunc printer) {
+    char upper_half[MAX_ESC_SEQUENCE_LEN], lower_half[MAX_ESC_SEQUENCE_LEN];
+    const int width = image->width, height = image->height;
+    const int color_depth = image->depth;
+    unsigned char *pixels = image->buffer;
+
+    /* Increment two lines at a time. Focus on the BOTTOM of the two lines
+     * (because if the bottom line is valid, then we know there must be a line
+     * above it. */
+    for (int y = 1; y < height; y += 2) {
+        /* Print each pixel. */
+        for (int x = 0; x < width; x++) {
+            /* Get the position of the first channel of the pixel. */
+            uint8_t *top_pixel = pixels + color_depth * (x + width * (y - 1));
+            uint8_t *bottom_pixel = pixels + color_depth * (x + width * y);
+
+            printf("\033[%s;%sm▀",
+                    printer(top_pixel, upper_half),
+                    printer(bottom_pixel, lower_half));
+        }
+        /* Finish the line by reseting the background and foreground colors.
+         * If you don't reset the background color, the color "spills" to the
+         * end of the line. */
+        printf("\033[39;49m\n");
+    }
 }
 
 /**
