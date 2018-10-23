@@ -8,6 +8,13 @@ compiler:
   - clang
   - gcc
 
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+      - realpath
+
 matrix:
   include:
     # works on Precise and Trusty
@@ -53,6 +60,17 @@ matrix:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+    # works on Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
     # works on Trusty
     - os: linux
