@@ -300,7 +300,7 @@ static void usage(FILE *dest) {
     const int field_width = strlen(program_name);
     fprintf(dest, "Usage:\n");
     fprintf(dest,
-            "\t%s"  " [--width=<columns> --height=<rows>|--no-rescale]\n"
+            "\t%s"  " [--width=<columns> --height=<rows>|--no-resize]\n"
             "\t%*c" " [--half-height] [--depth=(8|256|iterm2)] IMAGE\n",
             program_name, field_width, ' ');
     fprintf(dest, "\t"
