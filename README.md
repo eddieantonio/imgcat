@@ -14,8 +14,7 @@ Install
 On OS X:
 
 ```sh
-brew tap eddieantonio/eddieantonio
-brew install imgcat
+brew install eddieantonio/eddieantonio/imgcat
 ```
 
 **Important**: [See below](#note-on-iterm2s-shell-integration) if
