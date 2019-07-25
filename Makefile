@@ -1,4 +1,4 @@
-# Copyright (c) 2014–2018, Eddie Antonio Santos <easantos@ualberta.ca>
+# Copyright (c) 2014–2019, Eddie Antonio Santos <easantos@ualberta.ca>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -53,6 +53,13 @@ $(BIN): $(OBJS)
 %.1: %.1.md
 	$(PANDOC) --standalone --from=markdown-smart --to=man $(PANDOCFLAGS) \
 		-Vdate='$(shell date +'%B %d, %Y')' $< -o $@
+
+
+# XXX: The CImg.hpp file uses arr['char'] as subscripts, which Clang doesn't
+# like, so enable this flag JUST for the file that includes it!
+src/load_image.o: CXXFLAGS+=-Wno-char-subscripts
+src/load_image.o:
+
 
 # This is a bit uncouth, but Make can do all that autoconf stuff for us.
 config.mk: configure config.mk.in
