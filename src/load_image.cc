@@ -23,7 +23,7 @@
 #include <algorithm>
 
 #include "cimg_config.h"
-#include "CImg.hpp"
+#include "CImg.h"
 
 #include "load_image.h"
 /**

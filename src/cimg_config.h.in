@@ -1,6 +1,6 @@
 #ifndef CIMG_CONFIG_H
 #define CIMG_CONFIG_H
-/* IMPORTANT! Include this BEFORE CImg.hpp. */
+/* IMPORTANT! Include this BEFORE CImg.h. */
 
 #define cimg_verbosity  0
 #define cimg_display    0

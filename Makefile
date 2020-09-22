@@ -30,6 +30,8 @@ LDLIBS = $(LIBS) -ltermcap -lm -lpthread
 SOURCES = $(wildcard src/*.c) $(wildcard src/*.cc)
 OBJS = $(addsuffix .o,$(basename $(SOURCES)))
 DEPS = $(OBJS:.o=.d)
+INCLUDES = ./CImg
+INCLUDES_PARAMS =$(foreach d, $(INCLUDES), -I$d)
 
 
 all: $(BIN) $(MAN)
@@ -55,11 +57,10 @@ $(BIN): $(OBJS)
 		-Vdate='$(shell date +'%B %d, %Y')' $< -o $@
 
 
-# XXX: The CImg.hpp file uses arr['char'] as subscripts, which Clang doesn't
+# XXX: The CImg.h file uses arr['char'] as subscripts, which Clang doesn't
 # like, so enable this flag JUST for the file that includes it!
-src/load_image.o: CXXFLAGS+=-Wno-char-subscripts
+src/load_image.o: CXXFLAGS+=-Wno-char-subscripts $(INCLUDES_PARAMS)
 src/load_image.o:
-
 
 # This is a bit uncouth, but Make can do all that autoconf stuff for us.
 config.mk: configure config.mk.in
@@ -67,5 +68,6 @@ config.mk: configure config.mk.in
 
 configure: configure.ac
 	autoconf
+	git submodule update --init
 
 .PHONY: all clean install test
