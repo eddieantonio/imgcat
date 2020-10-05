@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <err.h>
+#include <limits.h>
 
 #include <getopt.h>
 #include <sys/ioctl.h>
@@ -80,8 +81,8 @@ static struct terminal_t real_terminal = {
 static struct terminal_t fake_terminal = { 0 };
 
 /* Global temporary filename for dumping stdin into.  */
-#define MAX_TEMPFILE_NAME 128
-static char tempfile_name[MAX_TEMPFILE_NAME + 1];
+static char tempfile_name[PATH_MAX + NAME_MAX + 1];
+static char tempfile_name_template[NAME_MAX + 1];
 
 /* Long options */
 static struct option long_options[] = {
@@ -271,7 +272,8 @@ static void unlink_tempfile(void) {
 static const char *dump_stdin_into_tempfile() {
     int byte;
     /* Set up the mutable buffer for mkstemp() to do its magic. */
-    strncpy(tempfile_name, "/tmp/image.XXXXXXXX", MAX_TEMPFILE_NAME);
+    strncpy(tempfile_name_template, "imgcat.XXXXXXXX", NAME_MAX);
+    snprintf(tempfile_name, PATH_MAX+NAME_MAX, "%s/%s", P_tmpdir, tempfile_name_template);
     int output_fd = mkstemp(tempfile_name);
     if (output_fd == -1) {
         fatal_error(EX_TEMPFAIL, "could not create temporary file: %s",
