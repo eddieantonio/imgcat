@@ -55,11 +55,18 @@ the line that sources iTerm2's script. For example:
 Build
 -----
 
+### Clone
+
+You must use `git clone --recurse-submodules` to clone this repository with its dependency, [CImg]:
+
+    git clone --recurse-submodules https://github.com/eddieantonio/imgcat.git
+
+
 ### Requirements
 
 - libncurses5-dev
 
-(You most likely already have both of these).
+(You most likely already have both of these):
 
  - GNU make
  - GNU autotools
