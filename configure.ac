@@ -39,6 +39,9 @@ AC_SEARCH_LIBS([png_create_info_struct], [png],
 AC_SEARCH_LIBS([jpeg_set_defaults], [jpeg],
                [AC_DEFINE(cimg_use_jpeg)])
 
+# Try to link with ncurses:
+AC_CHECK_LIB(ncurses,[main], [], [AC_MSG_ERROR(ncurses development library required)])
+
 # Checks for header files.
 AC_CHECK_HEADERS([sys/ioctl.h sys/time.h term.h sysexits.h])
 
