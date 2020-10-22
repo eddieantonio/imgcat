@@ -19,8 +19,8 @@ piped in through `stdin`.
 By default, the image is printed at the full width and color depth
 detected for your terminal. This can be overridden using **-w** to
 adjust the maximum width or **-R** to prevent resizing, even if the
-image is too big to fit in the terminal; and **-d** to explicitly the
-set color depth. You may also use **-r** to adjust the height ("r" for
+image is too big to fit in the terminal; and **-d** to explicitly set
+the color depth. You may also use **-r** to adjust the height ("r" for
 "number of rows"). If only one of **-w** or **-r** is provided, the
 image will be scaled without affecting the aspect ratio, if possible.
 
