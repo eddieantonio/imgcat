@@ -87,30 +87,31 @@ static char tempfile_name_template[NAME_MAX + 1];
 /* Long options */
 static struct option long_options[] = {
     /* Options affecting output colour depth. */
-    { "depth",          required_argument,      NULL,           'd' },
+    { "depth",          required_argument,      NULL,           'd'  },
 
     /* Options affecting size. */
-    { "no-resize",      no_argument,            NULL,           'R' },
-    { "width",          required_argument,      NULL,           'w' },
-    { "height",         required_argument,      NULL,           'r' },
-    { "half-height",    no_argument,            NULL,           'H' },
+    { "no-resize",      no_argument,            NULL,           'R'  },
+    { "width",          required_argument,      NULL,           'w'  },
+    { "height",         required_argument,      NULL,           'r'  },
+    { "half-height",    no_argument,            NULL,           'H'  },
 
     /* Abbreviated options. */
-    { "8",      no_argument, (int*) &options.format,    F_8_COLOR   },
-    { "ansi",   no_argument, (int*) &options.format,    F_8_COLOR   },
-    { "256",    no_argument, (int*) &options.format,    F_256_COLOR },
-    { "iterm2", no_argument, (int*) &options.format,    F_ITERM2    },
+    { "8",      no_argument, (int*) &options.format,    F_8_COLOR    },
+    { "ansi",   no_argument, (int*) &options.format,    F_8_COLOR    },
+    { "256",    no_argument, (int*) &options.format,    F_256_COLOR  },
+    { "true",   no_argument, (int*) &options.format,    F_TRUE_COLOR },
+    { "iterm2", no_argument, (int*) &options.format,    F_ITERM2     },
 
     /* Common options. */
-    { "help",           no_argument,            NULL,           'h' },
-    { "version",        no_argument,            NULL,           'v' },
+    { "help",           no_argument,            NULL,           'h'  },
+    { "version",        no_argument,            NULL,           'v'  },
 
     /* Options for internal use and debugging. */
     /* These flags are EXPLICITLY undocumented, as they are for development
      * use only, and can change or be removed at any time. */
-    { "x-terminal-override", required_argument, NULL,           'x' },
+    { "x-terminal-override", required_argument, NULL,           'x'  },
 
-    { NULL,             0,                      NULL,           0   }
+    { NULL,             0,                      NULL,           0    }
 };
 
 
@@ -207,6 +208,13 @@ static int get_terminal_colours() {
         return -1;
     }
 
+	// Check if the COLORTERM variable is defined and advertizes support for
+	// true color. There doesn't seem to be a standard way to test for this.
+	const char *ct = getenv("COLORTERM");
+	if (ct && (strcmp(ct, "truecolor") == 0 || strcmp(ct, "24bit") == 0)) {
+		return 256 * 256 * 256;
+	}
+
     return tigetnum("colors");
 }
 
@@ -247,7 +255,9 @@ static void determine_terminal_capabilities() {
  * self-reported color depth.
  */
 static void determine_optimum_color_format(struct terminal_t *terminal) {
-    if (terminal->colors >= 256) {
+    if (terminal->colors >= 256*256*256) {
+        terminal->optimum_format = F_TRUE_COLOR;
+	} else if (terminal->colors >= 256) {
         terminal->optimum_format = F_256_COLOR;
     } else if (terminal->colors >= 8) {
         terminal->optimum_format = F_8_COLOR;
@@ -303,7 +313,7 @@ static void usage(FILE *dest) {
     fprintf(dest, "Usage:\n");
     fprintf(dest,
             "\t%s"  " [--width=<columns> --height=<rows>|--no-resize]\n"
-            "\t%*c" " [--half-height] [--depth=(8|256|iterm2)] IMAGE\n",
+            "\t%*c" " [--half-height] [--depth=(8|256|true|iterm2)] IMAGE\n",
             program_name, field_width, ' ');
     fprintf(dest, "\t"
             "%s --version\n", program_name);
@@ -342,7 +352,9 @@ static void fatal_error(int code, const char *msg, ...) {
 static Format parse_format(const char *arg) {
 #   define argeq(b)     (strncmp(arg, (b), (sizeof(b))) == 0)
 
-    if (argeq("256")) {
+    if (argeq("true")) {
+        return F_TRUE_COLOR;
+	} else if (argeq("256")) {
         return F_256_COLOR;
     } else if (argeq("8") || argeq("ansi")) {
         return F_8_COLOR;
@@ -383,7 +395,7 @@ static const char* parse_args(int argc, char **argv) {
                 }
                 break;
 
-            case 'd': /* --depth=(8|ansi|256|iterm2) */
+            case 'd': /* --depth=(8|ansi|256|true|iterm2) */
                 options.format = parse_format(optarg);
                 if (options.format == F_UNSET) {
                     bad_usage("Unknown output format: %s", optarg);

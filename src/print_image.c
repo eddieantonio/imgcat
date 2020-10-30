@@ -34,7 +34,7 @@ enum {
      * Parameter bytes are the bytes that go between the Command Sequence
      * Initiator (CSI, a.k.a, "\033[") and the "m" at the end.
      */
-    MAX_ESC_SEQUENCE_LEN = sizeof("38;5;000;48;5;000")
+    MAX_ESC_SEQUENCE_LEN = sizeof("38;2;000;000;000;48;2;000;000;000")
 };
 
 enum layer {
@@ -56,6 +56,7 @@ static void half_height_image_iterator(struct Image *image, PixelFunc printer);
 static void image_iterator(struct Image *image, PixelFunc printer);
 static void print_osc();
 static void print_st();
+static const char* printer_true_color(Pixel *pixel, char sequence[], enum layer);
 static const char* printer_256_color(Pixel *pixel, char sequence[], enum layer);
 static const char* printer_8_color(Pixel *pixel, char sequence[], enum layer);
 
@@ -102,6 +103,9 @@ static bool print_iterate(PrintRequest *request) {
 
     /* That resized buffer? Yeah. Print it. */
     switch (format) {
+        case F_TRUE_COLOR:
+            printer = printer_true_color;
+            break;
         case F_256_COLOR:
             printer = printer_256_color;
             break;
@@ -206,6 +210,16 @@ static void half_height_image_iterator(struct Image *image, PixelFunc printer) {
          * end of the line. */
         printf("\033[39;49m\n");
     }
+}
+
+/**
+ * Convert the pixel values to an escape sequence directly
+ */
+static const char* printer_true_color(Pixel *pixel, char sequence[], enum layer layer) {
+    char category = layer == FOREGROUND ? '3' : '4';
+    snprintf(sequence, MAX_ESC_SEQUENCE_LEN,
+            "%c8;2;%03d;%03d;%03d", category, pixel[0], pixel[1], pixel[2]);
+    return sequence;
 }
 
 /**
