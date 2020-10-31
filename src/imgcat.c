@@ -208,12 +208,12 @@ static int get_terminal_colours() {
         return -1;
     }
 
-	// Check if the COLORTERM variable is defined and advertizes support for
-	// true color. There doesn't seem to be a standard way to test for this.
-	const char *ct = getenv("COLORTERM");
-	if (ct && (strcmp(ct, "truecolor") == 0 || strcmp(ct, "24bit") == 0)) {
-		return 256 * 256 * 256;
-	}
+    // Check if the COLORTERM variable is defined and advertizes support for
+    // true color. There doesn't seem to be a standard way to test for this.
+    const char *ct = getenv("COLORTERM");
+    if (ct && (strcmp(ct, "truecolor") == 0 || strcmp(ct, "24bit") == 0)) {
+        return 256 * 256 * 256;
+    }
 
     return tigetnum("colors");
 }
@@ -257,7 +257,7 @@ static void determine_terminal_capabilities() {
 static void determine_optimum_color_format(struct terminal_t *terminal) {
     if (terminal->colors >= 256*256*256) {
         terminal->optimum_format = F_TRUE_COLOR;
-	} else if (terminal->colors >= 256) {
+    } else if (terminal->colors >= 256) {
         terminal->optimum_format = F_256_COLOR;
     } else if (terminal->colors >= 8) {
         terminal->optimum_format = F_8_COLOR;
@@ -356,7 +356,7 @@ static Format parse_format(const char *arg) {
 
     if (argeq("true")) {
         return F_TRUE_COLOR;
-	} else if (argeq("256")) {
+    } else if (argeq("256")) {
         return F_256_COLOR;
     } else if (argeq("8") || argeq("ansi")) {
         return F_8_COLOR;
