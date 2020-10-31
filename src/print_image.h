@@ -31,7 +31,7 @@ enum {
 
 /* The output color depth/format. */
 typedef enum {
-    F_8_COLOR, F_256_COLOR, F_ITERM2, F_UNSET
+    F_8_COLOR, F_256_COLOR, F_TRUE_COLOR, F_ITERM2, F_UNSET
 } Format;
 
 /**
