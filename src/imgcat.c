@@ -14,13 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* Feature-test macro for fileno(3), fdopen(3), and mkstemp(3). */
-#define _XOPEN_SOURCE 500
+/* Feature-test macro for fileno(3), fdopen(3), and mkstemp(3), snprintf(3). */
+#define _XOPEN_SOURCE 600
 #include <assert.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <err.h>
 #include <limits.h>
@@ -281,9 +281,11 @@ static void unlink_tempfile(void) {
  */
 static const char *dump_stdin_into_tempfile() {
     int byte;
+
     /* Set up the mutable buffer for mkstemp() to do its magic. */
     strncpy(tempfile_name_template, "imgcat.XXXXXXXX", NAME_MAX);
-    snprintf(tempfile_name, PATH_MAX+NAME_MAX, "%s/%s", P_tmpdir, tempfile_name_template);
+    snprintf(tempfile_name, PATH_MAX + NAME_MAX, "%s/%s", P_tmpdir, tempfile_name_template);
+
     int output_fd = mkstemp(tempfile_name);
     if (output_fd == -1) {
         fatal_error(EX_TEMPFAIL, "could not create temporary file: %s",
