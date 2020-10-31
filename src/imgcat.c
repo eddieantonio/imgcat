@@ -36,14 +36,23 @@
 #include "print_image.h"
 #include "config.h"
 
+enum colors_t {
+    C_ANSI  = 8,
+    C_256   = 256,
+    C_24BIT = 256 * 256 * 256,
+};
+
+_Static_assert(C_24BIT >= 0, "enum type overflows :(");
+
 /* All the information I care about the terminal. */
 struct terminal_t {
     int width;
     int height;
-    int colors;
+    unsigned colors;
     bool isatty;
     Format optimum_format;
 };
+
 
 /**
  * Global containing all relevant command line options.
@@ -100,6 +109,7 @@ static struct option long_options[] = {
     { "ansi",   no_argument, (int*) &options.format,    F_8_COLOR    },
     { "256",    no_argument, (int*) &options.format,    F_256_COLOR  },
     { "true",   no_argument, (int*) &options.format,    F_TRUE_COLOR },
+    { "24bit",  no_argument, (int*) &options.format,    F_TRUE_COLOR },
     { "iterm2", no_argument, (int*) &options.format,    F_ITERM2     },
 
     /* Common options. */
@@ -212,7 +222,7 @@ static int get_terminal_colours() {
     // true color. There doesn't seem to be a standard way to test for this.
     const char *ct = getenv("COLORTERM");
     if (ct && (strcmp(ct, "truecolor") == 0 || strcmp(ct, "24bit") == 0)) {
-        return 256 * 256 * 256;
+        return C_24BIT;
     }
 
     return tigetnum("colors");
@@ -255,11 +265,11 @@ static void determine_terminal_capabilities() {
  * self-reported color depth.
  */
 static void determine_optimum_color_format(struct terminal_t *terminal) {
-    if (terminal->colors >= 256*256*256) {
+    if (terminal->colors >= C_24BIT) {
         terminal->optimum_format = F_TRUE_COLOR;
-    } else if (terminal->colors >= 256) {
+    } else if (terminal->colors >= C_256) {
         terminal->optimum_format = F_256_COLOR;
-    } else if (terminal->colors >= 8) {
+    } else if (terminal->colors >= C_ANSI) {
         terminal->optimum_format = F_8_COLOR;
     } else {
         fprintf(stderr, "%s: Cannot determine optimum color depth for "
@@ -354,7 +364,7 @@ static void fatal_error(int code, const char *msg, ...) {
 static Format parse_format(const char *arg) {
 #   define argeq(b)     (strncmp(arg, (b), (sizeof(b))) == 0)
 
-    if (argeq("true")) {
+    if (argeq("true") || argeq("24bit")) {
         return F_TRUE_COLOR;
     } else if (argeq("256")) {
         return F_256_COLOR;
@@ -397,7 +407,7 @@ static const char* parse_args(int argc, char **argv) {
                 }
                 break;
 
-            case 'd': /* --depth=(8|ansi|256|true|iterm2) */
+            case 'd': /* --depth=(8|ansi|256|24bit|true|iterm2) */
                 options.format = parse_format(optarg);
                 if (options.format == F_UNSET) {
                     bad_usage("Unknown output format: %s", optarg);
