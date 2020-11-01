@@ -11,7 +11,7 @@ jobs:
       - name: Build man page
         run: make docs/imgcat.1
       - name: Commit it back if it has changed
-        use: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "chore(docs): build man page"
           file_pattern: "docs/imgcat.1"
