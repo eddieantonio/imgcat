@@ -22,6 +22,14 @@ BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man/man1
 
 include config.mk
+include cstandard.mk
+
+# the -M* options produce .d files in addition to .o files,
+# to keep track of header dependencies (see: $(DEPS)).
+OUTPUT_OPTION = -MMD -MP -o $@
+
+# Use the C++ compiler to link, because we're using one C++ file!
+LD = $(CXX)
 
 # CImg requires pthread, for some reason
 LDLIBS = $(LIBS) -ltermcap -lm -lpthread -lcurses
