@@ -32,13 +32,15 @@ NEWLINE="$(printf '\n ')" && NEWLINE="${NEWLINE% }"
 # Use the default C compiler
 CC="${CC:-gcc}"
 TMPDIR="${TMPDIR:-/tmp}"
+BOLDRED="$(tput setaf 1)$(tput bold)"
+RESET="$(tput sgr0)"
 
 
 ############################## HELPER FUNCTIONS ##############################
 
 # Print an error message and quit
 error() {
-  echo "$@" 1>&2
+  echo "$0: ${BOLDRED}error${RESET}:" "$@" 1>&2
   exit ${EX_UNAVAILABLE}
 }
 
@@ -50,24 +52,13 @@ link_lib_against_test_program() {
   lib=$2
 
   printf 'checking to link with lib%s [using %s()]... ' "$lib" "$funcname"
-
-  filename="${TMPDIR}/conftest.$$.c"
-
-  cat > "${filename}" <<EOF
+  compile_test_program -l"${lib}" <<EOF
     char ${funcname}(void);
 
     int main(void) {
       return ${funcname}();
     }
 EOF
-
-  if ${CC} -o /dev/null "${filename}" "-l${lib}"; then
-    echo "yes"
-    return 0
-  else
-    echo "no"
-    return 1
-  fi
 }
 
 # Create a test program that includes the given system header.
@@ -75,13 +66,18 @@ compile_with_header() {
   header=$1
 
   printf 'checking for %s... ' "$header"
-
-  filename="${TMPDIR}/conftest.$$.c"
-  cat > "${filename}" <<EOF
+  compile_test_program -c <<EOF
   #include <${header}>
 EOF
+}
 
-  if $CC -c -o /dev/null "${filename}" ; then
+# Compiles a test program given on stdin.
+# Any arguments are passed to the compiler.
+compile_test_program() {
+  filename="${TMPDIR}/conftest.$$.c"
+
+  cat > "${filename}"
+  if ${CC} -o /dev/null "${filename}" "$@" ; then
     echo "yes"
     return 0
   else
@@ -126,7 +122,7 @@ if link_lib_against_test_program png_create_info_struct png ; then
   libs="${libs} -lpng"
 fi
 
-# -ljpg
+# -ljpg (optional)
 if link_lib_against_test_program jpeg_set_defaults jpeg ; then
   defines="${defines}#define cimg_use_jpeg 1${NEWLINE}"
   libs="${libs} -ljpeg"
