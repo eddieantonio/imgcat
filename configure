@@ -10,21 +10,24 @@ set -e
 version="$(<VERSION tr -d '\r')"
 
 
+################################# VARIABLES ##################################
+
+# A series of #define lines to write in src/cimg_config.h
+defines=""
+# A space-separated list of libraries to link with -l
+libs=""
+# The program used for pandoc
+pandoc=""
+
+
 ############################# INTERNAL CONSTANTS #############################
 
-# see man sysexits
+# see: man 3 sysexits
 EX_UNAVAILABLE=69
 # (nice)
 
-NEWLINE="$(printf '\n ')" && NEWLINE="${IFS% }"
+NEWLINE="$(printf '\n ')" && NEWLINE="${NEWLINE% }"
 TMPDIR="${TMPDIR:-/tmp}"
-
-
-################################# VARIABLES ##################################
-
-defines=""
-libs=""
-pandoc=""
 
 
 ############################## HELPER FUNCTIONS ##############################
@@ -89,7 +92,7 @@ check_for_program() {
   program="$1"
 
   printf 'checking for %s... ' "${program}"
-  if which ${program} >/dev/null 2>&1 ; then
+  if which "${program}" >/dev/null 2>&1 ; then
     echo "${program}"
     return 0
   else
@@ -97,6 +100,9 @@ check_for_program() {
     return 1
   fi
 }
+
+
+#################################### MAIN ####################################
 
 # -lcurses (required)
 if link_lib_against_test_program tigetnum curses ; then
