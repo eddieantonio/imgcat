@@ -55,7 +55,7 @@ link_lib_against_test_program() {
     }
 EOF
 
-  if ${cc} -o /dev/null "-l${lib}" "${filename}"; then
+  if ${cc} -o /dev/null "${filename}" "-l${lib}"; then
     echo "yes"
     return 0
   else
