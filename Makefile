@@ -66,8 +66,10 @@ src/load_image.o:
 config.mk: configure config.mk.in
 	./$<
 
+CImg/CImg.h:
+	git submodule update --init
+
 configure: configure.ac
 	autoconf
-	git submodule update --init
 
 .PHONY: all clean install test
