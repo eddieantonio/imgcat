@@ -8,6 +8,7 @@ set -e
 ################################# CONSTANTS ##################################
 
 version="$(<VERSION tr -d '\r')"
+headers="sys/ioctl.h sys/time.h term.h sysexits.h"
 
 
 ################################# VARIABLES ##################################
@@ -103,7 +104,14 @@ check_for_program() {
 }
 
 
-#################################### MAIN ####################################
+############################# Check for features #############################
+
+# assert headers exist
+for header in $headers ; do
+  if ! compile_with_header "$header" ; then
+    error "failed to find required header: $header"
+  fi
+done
 
 # -lcurses (required)
 if link_lib_against_test_program tigetnum curses ; then
@@ -111,7 +119,6 @@ if link_lib_against_test_program tigetnum curses ; then
 else
   error "ncurses is required for compilation"
 fi
-
 
 # -lpng (optional)
 if link_lib_against_test_program png_create_info_struct png ; then
@@ -125,18 +132,16 @@ if link_lib_against_test_program jpeg_set_defaults jpeg ; then
   libs="${libs} -ljpeg"
 fi
 
-for header in sys/ioctl.h sys/time.h term.h sysexits.h ; do
-  if ! compile_with_header "$header" ; then
-    error "failed to find required header: $header"
-  fi
-done
-
+# pandoc(1)
 if check_for_program pandoc ; then
   pandoc="pandoc"
 else
   echo "warning: ignoring requirement for pandoc..." 1>&2
   pandoc="true"
 fi
+
+
+############################### Generate files ###############################
 
 echo "creating config.mk"
 cat > config.mk <<EOF
