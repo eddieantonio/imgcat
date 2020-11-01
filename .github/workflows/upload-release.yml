@@ -4,20 +4,18 @@ on: [push]
 jobs:
   release:
     name: release
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Build distribution
         id: build
-        outputs:
-          tarball:
-            description: "name of the tar file generated"
         run: |
           make dist
           TARBALL="$(make dist-name)"
           echo "::set-output name=tarball::$TARBALL"
-      - name: Calculate sha256
+      - id: digest
+        name: Calculate sha256
         run: |
-          SHASUM="$(openssl dgst -sha256 "${{ jobs.build.tarball }}" | cut -f2 -d' ')"
+          SHASUM="$(openssl dgst -sha256 "${{ steps.build.tarball }}" | cut -f2 -d' ')"
           echo "::set-output name=tarball::$TARBALL"
