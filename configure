@@ -95,8 +95,9 @@ NEWLINE="$(printf '\n ')" && NEWLINE="${NEWLINE% }"
 CC="${CC:-gcc}"
 TMPDIR="${TMPDIR:-/tmp}"
 
-# required for tput
-TERM="${TERM:-xterm}"
+# Some environments may not set the TERM environment variable.
+# Set it here so that tput doesn't get upset.
+TERM="${TERM:-ansi}"
 
 # Colors
 BOLDRED="$(tput "-T${TERM}" setaf 1)$(tput "-T${TERM}" bold)"
