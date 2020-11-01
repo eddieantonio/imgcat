@@ -27,10 +27,10 @@ image will be scaled without affecting the aspect ratio, if possible.
 Setting **-H** enables the use of half-height block drawing characters
 (as opposed to "full height" spaces used in the default mode). This
 effectively doubles the vertical resolution of the terminal, and thus
-the image on your terminal will appear less "squished", and will appear
-as if it has better pixel resolution. Note that this effect works best
-on terminals that output using a bitmapped font, and have a line height
-of exactly 100% ([example][bitmapped-H]). Using anti-aliased fonts may
+the image on your terminal will appear less "squished", and have a greater
+pixel resolution. Note that this effect works best on terminals that
+output using a bitmapped font, and have a line height of exactly 100%
+([example][bitmapped-H]). Using anti-aliased fonts may
 distort the blocks, and using a taller line height will make the
 half-height block cover *less* than half of the block, further
 distorting the image ([example][bad-H]). Your millage may vary.
