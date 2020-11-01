@@ -7,7 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install pandoc
-        run: sudo apt-get install build-essential pandoc
+        run: sudo apt-get install pandoc
+      - name: Checkout imgcat
+        uses: actions/checkout@v2
       - name: Build man page
         run: make docs/imgcat.1
       - name: Commit it back if it has changed
