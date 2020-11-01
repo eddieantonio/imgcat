@@ -1,0 +1,14 @@
+name: Build and test imgcat
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Build and test imgcat
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout imgcat
+        uses: actions/checkout@2
+      - name: Build
+        run: make
+      - name: Test
+        run: make test
