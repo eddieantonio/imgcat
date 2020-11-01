@@ -99,8 +99,8 @@ TMPDIR="${TMPDIR:-/tmp}"
 TERM="${TERM:-xterm}"
 
 # Colors
-BOLDRED="$(tput setaf 1)$(tput bold)"
-RESET="$(tput sgr0)"
+BOLDRED="$(tput "-T${TERM}" setaf 1)$(tput "-T${TERM}" bold)"
+RESET="$(tput "-T${TERM}" sgr0)"
 
 
 ############################## HELPER FUNCTIONS ##############################
