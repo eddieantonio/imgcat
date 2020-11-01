@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# © 2020 Eddie Antonio Santos <easantos@ualberta.ca>
+
+exec ./configure.sh

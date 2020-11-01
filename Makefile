@@ -66,8 +66,7 @@ src/load_image.o:
 config.mk: configure config.mk.in
 	./$<
 
-configure: configure.ac
-	autoconf
+configure:
 	git submodule update --init
 
 .PHONY: all clean install test
