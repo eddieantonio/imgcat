@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          recursive: true
       - name: Build distribution
         id: build
         run: |
