@@ -19,5 +19,9 @@ jobs:
       - id: digest
         name: Calculate sha256
         run: |
-          SHASUM="$(openssl dgst -sha256 "${{ steps.build.tarball }}" | cut -f2 -d' ')"
-          echo "::set-output name=tarball::$TARBALL"
+          SHASUM="$(openssl dgst -sha256 "${{ steps.build.outputs.tarball }}" | cut -f2 -d ' ')"
+          echo "::set-output name=shasum::$SHASUM"
+      - name: run
+        run: |
+          echo "${{ steps.build.outputs.tarball }}"
+          echo "${{ steps.digest.outputs.SHASUM }}"
