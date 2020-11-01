@@ -39,8 +39,4 @@ imgcat
 
 # End of https://www.gitignore.io/api/c
 
-/autom4te.cache
-/config.log
-/config.status
-/configure.sh
 config.mk
