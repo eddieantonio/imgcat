@@ -119,5 +119,5 @@ $(DISTRIBUTION).tar.gz: $(DISTRIBUTION)
 ############################### Pattern rules ################################
 
 %.1: %.1.md
-	$(PANDOC) --standalone --from=markdown-smart --to=man $(PANDOCFLAGS) \
+	$(PANDOC) --standalone --to=man $(PANDOCFLAGS) \
 		-Vdate='$(shell date +'%B %d, %Y')' $< -o $@
