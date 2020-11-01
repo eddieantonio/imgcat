@@ -41,7 +41,7 @@ link_lib_against_test_program() {
   lib=$2
   cc=${CC:-gcc}
 
-  printf 'checking to link with lib%s (checking with %s())... ' "$lib" "$funcname"
+  printf 'checking to link with lib%s [using %s()]... ' "$lib" "$funcname"
 
   filename="${TMPDIR}/conftest.$$.c"
 
@@ -54,6 +54,27 @@ link_lib_against_test_program() {
 EOF
 
   if ${cc} -o /dev/null "-l${lib}" "${filename}"; then
+    echo "yes"
+    return 0
+  else
+    echo "no"
+    return 1
+  fi
+}
+
+# Create a test program that includes the given system header.
+compile_with_header() {
+  header=$1
+  cc=${CC:-gcc}
+
+  printf 'checking for %s... ' "$header"
+
+  filename="${TMPDIR}/conftest.$$.c"
+  cat > "${filename}" <<EOF
+  #include <${header}>
+EOF
+
+  if $cc -c -o /dev/null "${filename}" ; then
     echo "yes"
     return 0
   else
@@ -81,6 +102,12 @@ if link_lib_against_test_program jpeg_set_defaults jpeg ; then
   defines="${defines}#define cimg_use_jpeg 1${NEWLINE}"
   libs="${libs} -ljpeg"
 fi
+
+for header in sys/ioctl.h sys/time.h term.h sysexits.h ; do
+  if ! compile_with_header "$header" ; then
+    error "failed to find required header: $header"
+  fi
+done
 
 echo "creating src/config.h"
 cat > config.mk <<EOF
