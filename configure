@@ -8,7 +8,6 @@ set -e
 ################################# CONSTANTS ##################################
 
 version="$(<VERSION tr -d '\r')"
-headers="sys/ioctl.h sys/time.h term.h sysexits.h"
 
 
 ################################# VARIABLES ##################################
@@ -105,15 +104,20 @@ create_generated_file() {
   cat > "$filename"
 }
 
-
-############################# Check for features #############################
-
-# assert headers exist
-for header in $headers ; do
+require_system_header() {
+  header="$1"
   if ! compile_with_header "$header" ; then
     error "failed to find required header: $header"
   fi
-done
+}
+
+############################# Check for features #############################
+
+# assert required headers exist
+require_system_header sys/ioctl.h
+require_system_header sys/time.h
+require_system_header term.h
+require_system_header sysexits.h
 
 # -lcurses (required)
 if link_lib_against_test_program tigetnum curses ; then
