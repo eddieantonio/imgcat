@@ -325,7 +325,7 @@ static void usage(FILE *dest) {
     fprintf(dest, "Usage:\n");
     fprintf(dest,
             "\t%s"  " [--width=<columns> --height=<rows>|--no-resize]\n"
-            "\t%*c" " [--half-height] [--depth=(8|256|true|iterm2)] IMAGE\n",
+            "\t%*c" " [--half-height] [--depth=(8|256|24bit|iterm2)] IMAGE\n",
             program_name, field_width, ' ');
     fprintf(dest, "\t"
             "%s --version\n", program_name);
