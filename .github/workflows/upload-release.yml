@@ -9,7 +9,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          recursive: true
+          submodules: true
       - name: Build distribution
         id: build
         run: |
