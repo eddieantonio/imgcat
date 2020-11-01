@@ -11,7 +11,7 @@ jobs:
       - name: Checkout imgcat
         uses: actions/checkout@v2
       - name: Build man page
-        run: make docs/imgcat.1
+        run: make -B docs/imgcat.1
       - name: Commit it back if it has changed
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
