@@ -64,17 +64,12 @@ You must use `git clone --recurse-submodules` to clone this repository with its 
 
 ### Requirements
 
-- libncurses5-dev
-
-(You most likely already have both of these):
-
+ - libncurses5-dev
  - GNU make
- - GNU autotools
 
 Then:
 
 ```sh
-autoconf
 ./configure
 make
 ```
@@ -108,5 +103,5 @@ Acknowledgements
 License
 -------
 
-Copyright © 2014–2019 Eddie Antonio Santos.
+Copyright © 2014–2020 Eddie Antonio Santos.
 Distributed under the terms of the [ISC license](./LICENSE).
