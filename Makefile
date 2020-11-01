@@ -70,8 +70,8 @@ $(BIN): $(OBJS)
 src/load_image.o: CXXFLAGS+=-Wno-char-subscripts $(INCLUDES_PARAMS)
 src/load_image.o:
 
-# This is a bit uncouth, but Make can do all that autoconf stuff for us.
-config.mk: configure config.mk.in
+# Use ./configure to generate all requisite files
+config.mk src/config.h src/cimg_config.h: configure VERSION
 	./$<
 
 CImg/CImg.h:
