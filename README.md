@@ -6,7 +6,7 @@ imgcat
 It's like `cat` but for images.
 
 <p align="center">
-  <img src="./docs/imgcat.png" alt="running `imgcat cat.jpg`" width=506 height=620>
+  <img src="https://github.com/eddieantonio/i/raw/master/imgcat.png" alt="running `imgcat cat.jpg`" width=506 height=620>
 </p>
 
 
