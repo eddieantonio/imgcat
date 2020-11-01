@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Checkout imgcat
         uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Build
         run: make
       - name: Test
