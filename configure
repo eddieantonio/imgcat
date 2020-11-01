@@ -3,7 +3,7 @@
 # A handwritten ./configure script, because I kind of hate autotools.
 # © 2020 Eddie Antonio Santos <easantos@ualberta.ca>
 
-set -ex
+set -e
 
 ################################# CONSTANTS ##################################
 
