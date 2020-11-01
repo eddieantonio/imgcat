@@ -17,7 +17,7 @@ jobs:
         with:
           submodules: true
       - name: Install realpath
-        if: ${{ startsWith(matrix.os, 'macos' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         run: brew install coreutils
       - name: Build
         run: make
