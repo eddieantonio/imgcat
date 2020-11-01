@@ -51,8 +51,9 @@ you're having a problem with this.
 
 **-d** _MODE_, **--depth**=_MODE_
   ~ Explicitly set the output color depth to one of **ansi**, **8**
-  (alias of **ansi**), **256**, or **iterm**. If not provided, the
-  output color depth will be inferred with `tput colors`.
+  (alias of **ansi**), **256**, **24bit**, **true** (alias of **24bit**)
+  or **iterm**. If not provided, the output color depth will be inferred
+  with `tput colors`.
 
 **-h**, **--help**
   ~ Show common options and quit.
@@ -86,6 +87,10 @@ you're having a problem with this.
 
 **--256**
   ~ Set the output colour depth to 256. Same as **--depth=256**.
+
+**--24bit**, **--true**
+  ~ Set the output colour depth to 24 bit or “true” color.
+  Same as **--depth=24bit**.
 
 **--iterm2**
   ~ Set the output to iTerm inline image mode. Same as
