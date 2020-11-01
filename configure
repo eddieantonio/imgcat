@@ -94,6 +94,11 @@ NEWLINE="$(printf '\n ')" && NEWLINE="${NEWLINE% }"
 # Use the default C compiler
 CC="${CC:-gcc}"
 TMPDIR="${TMPDIR:-/tmp}"
+
+# required for tput
+TERM="${TERM:-xterm}"
+
+# Colors
 BOLDRED="$(tput setaf 1)$(tput bold)"
 RESET="$(tput sgr0)"
 
