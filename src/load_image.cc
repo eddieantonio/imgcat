@@ -23,6 +23,8 @@
 #include <algorithm>
 
 #include "cimg_config.h"
+#define cimg_verbosity  0
+#define cimg_display    0
 #include "CImg.h"
 
 #include "load_image.h"
