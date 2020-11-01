@@ -5,9 +5,7 @@ imgcat
 
 It's like `cat` but for images.
 
-<center>
-<img src="./docs/imgcat.png" alt="running `imgcat cat.jpg`" width=506 height=620>
-</center>
+<img src="./docs/imgcat.png" alt="running `imgcat cat.jpg`" width=506 height=620 align="center">
 
 
 Install
