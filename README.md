@@ -5,13 +5,15 @@ imgcat
 
 It's like `cat` but for images.
 
-<img src="./docs/imgcat.png" alt="$imgcat cat.jpg" height=620>
+<center>
+<img src="./docs/imgcat.png" alt="running `imgcat cat.jpg`" width=506 height=620>
+</center>
 
 
 Install
 -------
 
-On OS X:
+On macOS:
 
 ```sh
 brew install eddieantonio/eddieantonio/imgcat
