@@ -17,6 +17,7 @@ EX_UNAVAILABLE=69
 # (nice)
 
 NEWLINE="$(printf '\n ')" && NEWLINE="${IFS% }"
+TMPDIR="${TMPDIR:-/tmp}"
 
 
 ################################# VARIABLES ##################################
