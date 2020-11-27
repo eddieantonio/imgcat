@@ -35,6 +35,9 @@ imgcat some_image.jpg
 
 See the [manpage](./docs/imgcat.1.md) for more invocations.
 
+Looking for python integration?    
+Checkout https://pypi.org/project/imgcat/
+
 Note on iTerm2's shell integration
 ----------------------------------
 
