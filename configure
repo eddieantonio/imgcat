@@ -30,7 +30,9 @@ main() {
   require_system_header sysexits.h
 
   # Link with -lcurses (required)
-  if link_lib_against_test_program tigetnum curses ; then
+  if link_lib_against_test_program tigetnum ncurses ; then
+    libs="${libs} -lncurses"
+  elif link_lib_against_test_program tigetnum curses ; then
     libs="${libs} -lcurses"
   else
     error "ncurses is required for compilation"
