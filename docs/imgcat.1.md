@@ -132,4 +132,4 @@ See GitHub Issues: <https://github.com/eddieantonio/imgcat/issues>
 
 # AUTHOR
 
-**imgcat** was written by Eddie Antonio Santos <http://eddieantonio.ca>.
+**imgcat** was written by Eddie Antonio Santos <https://eddieantonio.ca/>.
