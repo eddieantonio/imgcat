@@ -43,15 +43,13 @@ main() {
   # Link with -lpng (optional)
   if link_lib_against_test_program_using_pkgconfig png_create_info_struct png ; then
     defines="${defines}#define cimg_use_png 1${NEWLINE}"
-    libs="${libs} $(pkg-config --libs libpng)"
-    includes="${includes} $(pkg-config --cflags libpng)"
+    extend_libs_and_includes_using_pkgconfig png
   fi
 
   # Link with -ljpg (optional)
   if link_lib_against_test_program_using_pkgconfig jpeg_set_defaults jpeg ; then
     defines="${defines}#define cimg_use_jpeg 1${NEWLINE}"
-    libs="${libs} $(pkg-config --libs libjpeg)"
-    includes="${includes} $(pkg-config --cflags libjpeg)"
+    extend_libs_and_includes_using_pkgconfig jpeg
   fi
 
   # Check if pandoc is installed (optional)
@@ -148,6 +146,14 @@ link_lib_against_test_program_using_pkgconfig() {
       return ${funcname}();
     }
 EOF
+}
+
+# Add the appropriate flags for the given library using pkg-config(1)
+extend_libs_and_includes_using_pkgconfig() {
+  lib=$1
+
+  libs="${libs} $(pkg-config --libs lib${lib})"
+  includes="${includes} $(pkg-config --cflags lib${lib})"
 }
 
 # Check if the program is on the path.
