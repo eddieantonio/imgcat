@@ -55,8 +55,6 @@ LDLIBS = $(LIBS) -ltermcap -lm -lpthread
 SOURCES = $(wildcard src/*.c) $(wildcard src/*.cc)
 OBJS = $(addsuffix .o,$(basename $(SOURCES)))
 DEPS = $(OBJS:.o=.d)
-INCLUDES = ./CImg
-INCLUDES_PARAMS =$(foreach d, $(INCLUDES), -I$d)
 
 ################################ Phony rules #################################
 
@@ -93,7 +91,7 @@ $(GENERATED_FILES): configure VERSION
 
 # XXX: The CImg.h file uses arr['char'] as subscripts, which Clang doesn't
 # like, so enable this flag JUST for the file that includes it!
-src/load_image.o: CXXFLAGS+=-Wno-char-subscripts $(INCLUDES_PARAMS)
+src/load_image.o: CXXFLAGS+=-Wno-char-subscripts -I./CImg
 src/load_image.o:
 
 # Automatically clone CImg if not found:
