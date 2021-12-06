@@ -1,7 +1,6 @@
 imgcat
 ======
 
-[![Build Status](https://travis-ci.org/eddieantonio/imgcat.svg?branch=master)](https://travis-ci.org/eddieantonio/imgcat)
 [![Build Status](https://github.com/eddieantonio/imgcat/workflows/Build%20and%20test%20imgcat/badge.svg\?branch\=master)](https://github.com/eddieantonio/imgcat/actions)
 
 It's like `cat` but for images.
