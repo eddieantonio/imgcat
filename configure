@@ -20,6 +20,8 @@ libs=""
 includes=""
 # The program used for pandoc
 pandoc=""
+# What flag to use to compile using C++11 features.
+cxxstd=""
 
 
 #################################### MAIN ####################################
@@ -30,6 +32,15 @@ main() {
   require_system_header sys/time.h
   require_system_header term.h
   require_system_header sysexits.h
+
+  # Figure out how to compile C++ 11 code
+  if use_cxxflag -std=c++11 ; then
+    cxxstd="-std=c++11"
+  elif use_cxxflag -std=c++0x ; then
+    cxxstd="-std=c++0x"
+  else
+    error "unable to find a C++11 compiler"
+  fi
 
   # Link with -lcurses (required)
   if link_lib_against_test_program tigetnum ncurses ; then
@@ -67,6 +78,7 @@ PACKAGE_VERSION = ${version}
 PANDOC = ${pandoc}
 LIBS = ${libs}
 INCLUDE_FLAGS = ${includes}
+CXXSTD = ${cxxstd}
 EOF
 
   generate_file src/config.h <<EOF
@@ -96,8 +108,9 @@ EX_UNAVAILABLE=69
 
 NEWLINE="$(printf '\n ')" && NEWLINE="${NEWLINE% }"
 
-# Use the default C compiler
+# Use the default C and C++ compilers
 CC="${CC:-gcc}"
+CXX="${CXX:-c++}"
 TMPDIR="${TMPDIR:-/tmp}"
 
 # Colors
@@ -112,6 +125,18 @@ require_system_header() {
   if ! compile_with_header "$header" ; then
     error "failed to find required header: $header"
   fi
+}
+
+use_cxxflag() {
+  flag="$1"
+  printf "checking to compile C++ with ${flag}... "
+
+  compile_test_cxx_program "${flag}" <<EOF
+int main(void) {
+  void *p = nullptr;
+  return p != 0;
+}
+EOF
 }
 
 # Create a test program that uses a library function and link against that
@@ -193,13 +218,28 @@ compile_with_header() {
 EOF
 }
 
-# Compiles a test program given on stdin.
+# Compiles a test C program given on stdin.
 # Any arguments are passed to the compiler.
 compile_test_program() {
   filename="${TMPDIR}/conftest.$$.c"
 
   cat > "${filename}"
-  if ${CC} -o /dev/null "${filename}" "$@" ; then
+  if "${CC}" -o /dev/null "${filename}" "$@" ; then
+    echo "yes"
+    return 0
+  else
+    echo "no"
+    return 1
+  fi
+}
+
+# Compiles a test C++ program given on stdin.
+# Any arguments are passed to the compiler.
+compile_test_cxx_program() {
+  filename="${TMPDIR}/conftest.$$.cc"
+
+  cat > "${filename}"
+  if "${COMPILER:=${CC}}" -o /dev/null "${filename}" "$@" ; then
     echo "yes"
     return 0
   else
