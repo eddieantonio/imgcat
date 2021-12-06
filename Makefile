@@ -38,8 +38,8 @@ CSTD = -std=c11
 CXXSTD = -std=c++11
 endif
 
-CFLAGS += $(CSTD) -Wall
-CXXFLAGS += $(CXXSTD) -Wall
+CFLAGS += $(CSTD) -Wall $(INCLUDE_FLAGS)
+CXXFLAGS += $(CXXSTD) -Wall $(INCLUDE_FLAGS)
 
 # the -M* options produce .d files in addition to .o files,
 # to keep track of header dependencies (see: $(DEPS)).

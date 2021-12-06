@@ -14,8 +14,10 @@ version="$(<VERSION tr -d '\r')"
 
 # A series of #define lines to write in src/cimg_config.h
 defines=""
-# A space-separated list of libraries to link with -l
+# A space-separated list of linker flags to link with required libraries
 libs=""
+# A space-separated list of compiler flags to configure include paths
+includes=""
 # The program used for pandoc
 pandoc=""
 
@@ -39,15 +41,17 @@ main() {
   fi
 
   # Link with -lpng (optional)
-  if link_lib_against_test_program png_create_info_struct png ; then
+  if link_lib_against_test_program_using_pkgconfig png_create_info_struct png ; then
     defines="${defines}#define cimg_use_png 1${NEWLINE}"
-    libs="${libs} -lpng"
+    libs="${libs} $(pkg-config --libs libpng)"
+    includes="${includes} $(pkg-config --cflags libpng)"
   fi
 
   # Link with -ljpg (optional)
-  if link_lib_against_test_program jpeg_set_defaults jpeg ; then
+  if link_lib_against_test_program_using_pkgconfig jpeg_set_defaults jpeg ; then
     defines="${defines}#define cimg_use_jpeg 1${NEWLINE}"
-    libs="${libs} -ljpeg"
+    libs="${libs} $(pkg-config --libs libjpeg)"
+    includes="${includes} $(pkg-config --cflags libjpeg)"
   fi
 
   # Check if pandoc is installed (optional)
@@ -64,6 +68,7 @@ main() {
 PACKAGE_VERSION = ${version}
 PANDOC = ${pandoc}
 LIBS = ${libs}
+INCLUDE_FLAGS = ${includes}
 EOF
 
   generate_file src/config.h <<EOF
@@ -120,6 +125,23 @@ link_lib_against_test_program() {
 
   printf 'checking to link with lib%s [using %s()]... ' "$lib" "$funcname"
   compile_test_program -l"${lib}" <<EOF
+    char ${funcname}(void);
+
+    int main(void) {
+      return ${funcname}();
+    }
+EOF
+}
+
+# Create a test program that uses a library function and link against that
+# library. Returns zero on if the library was linked succesfully, non-zero
+# otherwise.
+link_lib_against_test_program_using_pkgconfig() {
+  funcname=$1
+  lib=$2
+
+  printf 'checking to link with lib%s using pkg-config [using %s()]... ' "$lib" "$funcname"
+  compile_test_program $(pkg-config --cflags --libs lib${lib}) <<EOF
     char ${funcname}(void);
 
     int main(void) {

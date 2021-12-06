@@ -70,6 +70,14 @@ You must use `git clone --recurse-submodules` to clone this repository with its 
  - libncurses5-dev
  - GNU make
 
+### Recommended dependencies
+
+These dependencies are not necessary, but if `pkg-config` manages to
+find a compatible version on the system, `imgcat` will link to it!
+
+ - libpng (any 1.x version supported by [CImg])
+ - libjpeg (any version supported by [CImg])
+
 Then:
 
 ```sh
