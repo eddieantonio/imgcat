@@ -113,5 +113,5 @@ Acknowledgements
 License
 -------
 
-Copyright © 2014–2020 Eddie Antonio Santos.
+Copyright © 2014–2023 Eddie Antonio Santos.
 Distributed under the terms of the [ISC license](./LICENSE).
