@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # A handwritten ./configure script, because I kind of hate autotools.
-# © 2020 Eddie Antonio Santos <easantos@ualberta.ca>
+# Update (2023): Autotools=still awful. But writing this was a mistake.
+# © 2020–2023 Eddie Antonio Santos <hello@eddieantonio.ca>
 
 set -e
 
@@ -129,7 +130,7 @@ require_system_header() {
 
 use_cxxflag() {
   flag="$1"
-  printf "checking to compile C++ with ${flag}... "
+  printf 'checking to compile C++ with %s...' "${flag}"
 
   compile_test_cxx_program "${flag}" <<EOF
 int main(void) {
@@ -148,11 +149,11 @@ link_lib_against_test_program() {
 
   printf 'checking to link with lib%s [using %s()]... ' "$lib" "$funcname"
   compile_test_program -l"${lib}" <<EOF
-    char ${funcname}(void);
+char ${funcname}(void);
 
-    int main(void) {
-      return ${funcname}();
-    }
+int main(void) {
+  return ${funcname}();
+}
 EOF
 }
 
@@ -164,12 +165,16 @@ link_lib_against_test_program_using_pkgconfig() {
   lib=$2
 
   printf 'checking to link with lib%s using pkg-config [using %s()]... ' "$lib" "$funcname"
-  compile_test_program $(pkg-config --cflags --libs lib${lib}) <<EOF
-    char ${funcname}(void);
+  # Contrary to best practices, pkg-config actually depends on its output
+  # being broken by spaces to create multiple arguments from one invocation,
+  # so ignore the lint:
+  # shellcheck disable=SC2046
+  compile_test_program $(pkg-config --cflags --libs "lib${lib}") <<EOF
+char ${funcname}(void);
 
-    int main(void) {
-      return ${funcname}();
-    }
+int main(void) {
+  return ${funcname}();
+}
 EOF
 }
 
@@ -177,8 +182,8 @@ EOF
 extend_libs_and_includes_using_pkgconfig() {
   lib=$1
 
-  libs="${libs} $(pkg-config --libs lib${lib})"
-  includes="${includes} $(pkg-config --cflags lib${lib})"
+  libs="${libs} $(pkg-config --libs "lib${lib}")"
+  includes="${includes} $(pkg-config --cflags "lib${lib}")"
 }
 
 # Check if the program is on the path.
@@ -217,11 +222,11 @@ compile_with_header() {
   # term.h on newer macOS.
   # See: https://github.com/eddieantonio/imgcat/issues/51
   compile_test_program -c <<EOF
-  #ifdef __APPLE__
-  #include <Availability.h>
-  #endif
+#ifdef __APPLE__
+#include <Availability.h>
+#endif
 
-  #include <${header}>
+#include <${header}>
 EOF
 }
 
