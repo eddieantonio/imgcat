@@ -213,7 +213,14 @@ compile_with_header() {
   header=$1
 
   printf 'checking for %s... ' "$header"
+  # We include <Availability.h> on Apple to workaround issue an issue with
+  # term.h on newer macOS.
+  # See: https://github.com/eddieantonio/imgcat/issues/51
   compile_test_program -c <<EOF
+  #ifdef __APPLE__
+  #include <Availability.h>
+  #endif
+
   #include <${header}>
 EOF
 }
