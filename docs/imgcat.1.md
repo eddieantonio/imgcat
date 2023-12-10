@@ -21,8 +21,8 @@ detected for your terminal. This can be overridden using **-w** to
 adjust the maximum width or **-R** to prevent resizing, even if the
 image is too big to fit in the terminal; and **-d** to explicitly set
 the color depth. You may also use **-r** to adjust the height ("r" for
-"number of rows"). If only one of **-w** or **-r** is provided, the
-image will be scaled without affecting the aspect ratio, if possible.
+"number of rows"). The image will be scaled without affecting the aspect
+ratio, unless **-P** is provided.
 
 Setting **-H** enables the use of half-height block drawing characters
 (as opposed to "full height" spaces used in the default mode). This
@@ -68,6 +68,9 @@ you're having a problem with this.
   ~ Resizes the image to _ROWS_ characters high.
   Does nothing if **--no-resize** is provided. Maintains the original image's
   aspect ratio if **--width** is NOT provided.
+
+**-P**, **--no-preserve-aspect-ratio**
+  ~ Does not preserve aspect ratio during image resizing.
 
 **-R**, **--no-resize**
   ~ Does not resize the image to fit the terminal's width. Overrides

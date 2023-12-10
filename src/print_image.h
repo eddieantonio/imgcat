@@ -44,6 +44,7 @@ typedef struct {
     int desired_width;
     int desired_height;
     bool half_height;
+    bool preserve_aspect_ratio;
     Format format;
 } PrintRequest;
 

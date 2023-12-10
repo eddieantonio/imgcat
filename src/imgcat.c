@@ -64,6 +64,7 @@ static struct {
     int height;
     bool use_half_height;
     bool use_fake_terminal;
+    bool should_preserve_aspect_ratio;
 } options = {
     .format = F_UNSET,          /* Default: autodetect highest fidelity. */
     .should_resize = true,      /* Default: yes! */
@@ -71,6 +72,7 @@ static struct {
     .height = HEIGHT_UNSET,
     .use_half_height = false,
     .use_fake_terminal = false,
+    .should_preserve_aspect_ratio = true
 };
 
 /**
@@ -96,13 +98,14 @@ static char tempfile_name_template[NAME_MAX + 1];
 /* Long options */
 static struct option long_options[] = {
     /* Options affecting output colour depth. */
-    { "depth",          required_argument,      NULL,           'd'  },
+    { "depth",                 required_argument,      NULL,    'd'  },
 
     /* Options affecting size. */
-    { "no-resize",      no_argument,            NULL,           'R'  },
-    { "width",          required_argument,      NULL,           'w'  },
-    { "height",         required_argument,      NULL,           'r'  },
-    { "half-height",    no_argument,            NULL,           'H'  },
+    { "no-resize",                no_argument,         NULL,    'R'  },
+    { "width",                    required_argument,   NULL,    'w'  },
+    { "height",                   required_argument,   NULL,    'r'  },
+    { "half-height",              no_argument,         NULL,    'H'  },
+    { "no-preserve-aspect-ratio", no_argument,         NULL,    'P'  },
 
     /* Abbreviated options. */
     { "8",      no_argument, (int*) &options.format,    F_8_COLOR    },
@@ -198,7 +201,8 @@ int main(int argc, char **argv) {
         .max_width = terminal->width,
         .max_height = terminal->height,
         .half_height = options.use_half_height,
-        .format = color_format
+        .format = color_format,
+        .preserve_aspect_ratio = options.should_preserve_aspect_ratio
     };
     status = print_image(&request);
 
@@ -324,7 +328,7 @@ static void usage(FILE *dest) {
     const int field_width = strlen(program_name);
     fprintf(dest, "Usage:\n");
     fprintf(dest,
-            "\t%s"  " [--width=<columns> --height=<rows>|--no-resize]\n"
+            "\t%s"  " [--width=<columns> --height=<rows>|--no-resize] [--no-preserve-aspect-ratio]\n"
             "\t%*c" " [--half-height] [--depth=(8|256|24bit|iterm2)] IMAGE\n",
             program_name, field_width, ' ');
     fprintf(dest, "\t"
@@ -385,7 +389,7 @@ static const char* parse_args(int argc, char **argv) {
     opterr = 0;
 
     while (1) {
-        c = getopt_long(argc, argv, "w:r:d:RHhv", long_options, NULL);
+        c = getopt_long(argc, argv, "w:r:d:PRHhv", long_options, NULL);
         if (c == -1) {
             break;
         }
@@ -412,6 +416,10 @@ static const char* parse_args(int argc, char **argv) {
                 if (options.format == F_UNSET) {
                     bad_usage("Unknown output format: %s", optarg);
                 }
+                break;
+
+            case 'P': /* --no-preserve-aspect-ratio */
+                options.should_preserve_aspect_ratio = false;
                 break;
 
             case 'R': /* --no-resize */

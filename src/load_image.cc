@@ -134,6 +134,29 @@ void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& option
         /* Make sure the image is never smaller than 1x1 pixels. */
         int new_width = std::max(options.desired_width, 1);
         int new_height = std::max(options.desired_height, 1);
+
+        /* Resize preserving aspect ratio. */
+        if (options.preserve_aspect_ratio) {
+            int max_width = new_width;
+            int max_height = new_height;
+            new_width = img.width();
+            new_height = img.height();
+
+            if (new_width > max_width) {
+                new_width = max_width;
+                double ratio = ((double) img.height()) / img.width();
+                /* Scale height, ensuring it's at least 1px. */
+                new_height = std::max((int) (ratio * (double) new_width), 1);
+            }
+
+            if (new_height > max_height) {
+                new_height = max_height;
+                double ratio = ((double) img.width()) / img.height();
+                /* Scale width, ensuring it's at least 1px. */
+                new_width = std::max((int) (ratio * (double) new_height), 1);
+            }
+        }
+
         img.resize(new_width, new_height);
     } else if (resize_width) {
         /* Only resize if the image is strictly greater than the source width. */

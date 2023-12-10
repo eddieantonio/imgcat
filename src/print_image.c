@@ -88,6 +88,7 @@ static bool print_iterate(PrintRequest *request) {
         .max_height = request->max_height,
         .desired_width = request->desired_width,
         .desired_height = request->desired_height,
+        .preserve_aspect_ratio = request->preserve_aspect_ratio,
     };
     assert(format != F_UNSET);
 
