@@ -142,7 +142,8 @@ void maybe_resize(cimg_library::CImg<unsigned char>& img, const LoadOpts& option
         }
         int new_width = options.desired_width;
         double ratio = ((double) img.height()) / img.width();
-        int new_height = ratio * (double) new_width;
+        /* Scale height, ensuring it's at least 1px. */
+        int new_height = std::max((int) (ratio * (double) new_width), 1);
         img.resize(new_width, new_height);
     } else if (resize_height) {
         /* Resize without affecting aspect ratio. */
