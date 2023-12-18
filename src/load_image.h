@@ -55,6 +55,7 @@ struct LoadOpts {
     int max_height;
     int desired_width;
     int desired_height;
+    bool preserve_aspect_ratio;
 };
 
 /**
