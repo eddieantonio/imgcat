@@ -70,7 +70,13 @@ you're having a problem with this.
   aspect ratio if **--width** is NOT provided.
 
 **-P**, **--no-preserve-aspect-ratio**
-  ~ Does not preserve aspect ratio during image resizing.
+  ~ Allows for arbitrary image resizing when specifying both `--width`
+  and `--height`. By default, if both `--width` and `--height` are
+  provided, the image's aspect ratio is preserved (it does not get
+  stretched in any direction), and the `--width` and `--height` specify
+  the maximum amount of characters that the image be resized to. If you
+  provide `--no-preserve-aspect-ratio`, then `--width` and `--height`
+  are exact dimensions, and the image might be squished accordingly.
 
 **-R**, **--no-resize**
   ~ Does not resize the image to fit the terminal's width. Overrides
@@ -135,4 +141,4 @@ See GitHub Issues: <https://github.com/eddieantonio/imgcat/issues>
 
 # AUTHOR
 
-**imgcat** was written by Eddie Antonio Santos <https://eddieantonio.ca/>.
+**imgcat** was written by Eddie Antonio Santos <https://eddieantonio.ca/> and contributors.

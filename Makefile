@@ -58,7 +58,7 @@ DEPS = $(OBJS:.o=.d)
 all: $(BIN) $(MAN)
 
 clean:
-	$(RM) $(BIN) $(OBJS)
+	$(RM) $(BIN) $(OBJS) $(DEPS)
 
 clean-all: clean
 	$(RM) $(GENERATED_FILES)
