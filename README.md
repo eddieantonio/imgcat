@@ -66,8 +66,16 @@ You must use `git clone --recurse-submodules` to clone this repository with its 
 
 ### Requirements
 
- - libncurses5-dev
+To build from source, you need the following:
+
  - GNU make
+ - pkg-config
+ - ncurses with header files
+
+On Debian/Ubuntu/Mint/etc. you can get these packages with this
+command:
+
+    sudo apt-get install build-essential pkg-config libncurses5-dev
 
 ### Recommended dependencies
 
@@ -76,6 +84,11 @@ find a compatible version on the system, `imgcat` will link to it!
 
  - libpng (any 1.x version supported by [CImg])
  - libjpeg (any version supported by [CImg])
+
+On Debian/Ubuntu/Mint/etc. you can get these packages with this
+command:
+
+    sudo apt-get install libpng-dev libjpeg-dev
 
 Then:
 
